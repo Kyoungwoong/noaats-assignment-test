@@ -1,0 +1,76 @@
+# Codex Rules (project: demo 2)
+# 목적: 코딩테스트/개발에서 위험 명령은 확인(prompt), 안전 명령은 허용
+# 참고: 필요에 따라 decision을 allow/prompt/forbidden으로 조정
+
+# --- 안전한 읽기/조회 명령: allow ---
+rule("allow_readonly_shell", prefix=["ls"], decision="allow")
+rule("allow_readonly_shell", prefix=["pwd"], decision="allow")
+rule("allow_readonly_shell", prefix=["whoami"], decision="allow")
+rule("allow_readonly_shell", prefix=["date"], decision="allow")
+rule("allow_readonly_shell", prefix=["uname"], decision="allow")
+rule("allow_readonly_shell", prefix=["cat"], decision="allow")
+rule("allow_readonly_shell", prefix=["sed"], decision="allow")
+rule("allow_readonly_shell", prefix=["head"], decision="allow")
+rule("allow_readonly_shell", prefix=["tail"], decision="allow")
+rule("allow_readonly_shell", prefix=["wc"], decision="allow")
+rule("allow_readonly_shell", prefix=["stat"], decision="allow")
+rule("allow_readonly_shell", prefix=["rg"], decision="allow")
+rule("allow_readonly_shell", prefix=["find"], decision="allow")
+
+# --- Git 조회 명령: allow ---
+rule("allow_git_readonly", prefix=["git","status"], decision="allow")
+rule("allow_git_readonly", prefix=["git","diff"], decision="allow")
+rule("allow_git_readonly", prefix=["git","log"], decision="allow")
+rule("allow_git_readonly", prefix=["git","show"], decision="allow")
+rule("allow_git_readonly", prefix=["git","branch"], decision="allow")
+
+# --- 일반 개발 명령: prompt ---
+# (의도 확인이 필요한 변경/네트워크/설치 관련)
+rule("prompt_git_write", prefix=["git","add"], decision="prompt")
+rule("prompt_git_write", prefix=["git","commit"], decision="prompt")
+rule("prompt_git_write", prefix=["git","push"], decision="prompt")
+rule("prompt_git_write", prefix=["git","pull"], decision="prompt")
+rule("prompt_git_write", prefix=["git","switch"], decision="prompt")
+rule("prompt_git_write", prefix=["git","checkout"], decision="prompt")
+rule("prompt_git_write", prefix=["git","merge"], decision="prompt")
+rule("prompt_git_write", prefix=["git","rebase"], decision="prompt")
+rule("prompt_git_write", prefix=["git","tag"], decision="prompt")
+
+rule("prompt_network_tools", prefix=["curl"], decision="prompt")
+rule("prompt_network_tools", prefix=["wget"], decision="prompt")
+
+rule("prompt_pkg_tools", prefix=["brew"], decision="prompt")
+rule("prompt_pkg_tools", prefix=["npm"], decision="prompt")
+rule("prompt_pkg_tools", prefix=["yarn"], decision="prompt")
+rule("prompt_pkg_tools", prefix=["pnpm"], decision="prompt")
+rule("prompt_pkg_tools", prefix=["pip"], decision="prompt")
+rule("prompt_pkg_tools", prefix=["python","-m","pip"], decision="prompt")
+
+# --- GitHub CLI: prompt ---
+rule("prompt_gh_issue", prefix=["gh","issue","create"], decision="prompt")
+rule("prompt_gh_issue", prefix=["gh","issue","close"], decision="prompt")
+rule("prompt_gh_pr", prefix=["gh","pr","create"], decision="prompt")
+rule("prompt_gh_pr", prefix=["gh","pr","merge"], decision="prompt")
+rule("prompt_gh_repo", prefix=["gh","repo"], decision="prompt")
+
+# --- 위험 명령: prompt ---
+rule("prompt_sudo", prefix=["sudo"], decision="prompt")
+rule("prompt_rm_force", prefix=["rm","-rf"], decision="prompt")
+rule("prompt_rm_force_alt", prefix=["rm","-fr"], decision="prompt")
+
+# --- 매우 위험한 명령: forbidden ---
+rule("forbid_rm_root", prefix=["rm","-rf","/"], decision="forbidden")
+rule("forbid_git_reset_hard", prefix=["git","reset","--hard"], decision="forbidden")
+rule("forbid_git_checkout_path", prefix=["git","checkout","--"], decision="forbidden")
+rule("forbid_git_clean", prefix=["git","clean","-fdx"], decision="forbidden")
+rule("forbid_git_push_force", prefix=["git","push","--force"], decision="forbidden")
+rule("forbid_git_push_force_alt", prefix=["git","push","-f"], decision="forbidden")
+rule("forbid_mkfs", prefix=["mkfs"], decision="forbidden")
+rule("forbid_dd", prefix=["dd"], decision="forbidden")
+rule("forbid_shutdown", prefix=["shutdown"], decision="forbidden")
+rule("forbid_reboot", prefix=["reboot"], decision="forbidden")
+
+# --- 테스트 규칙 예시(로딩 검증용) ---
+rule("test_match", prefix=["echo","SAFE_RULE_MATCH"], decision="allow",
+     match=["echo","SAFE_RULE_MATCH"],
+     not_match=["echo","SAFE_RULE_MISMATCH"])

@@ -1,0 +1,40 @@
+# .codex/config.toml
+# 목적: 무신사 코딩테스트를 위한 프로젝트 전용 기본 설정
+
+# --- 핵심 동작 ---
+model = "gpt-5.2"                       # 프로젝트 기본 모델
+model_reasoning_effort = "high"        # 정확성 우선(속도보다 정답률)
+approval_policy = "on-request"         # 명령 실행 전 사용자 승인 요청
+sandbox_mode = "workspace-write"        # 작업공간 내 쓰기만 허용하는 샌드박스
+web_search = "live"                     # 라이브 검색 기본 활성화(--search와 동일)
+project_doc_max_bytes = 65536           # AGENTS/Skill 문서 잘림 방지(기본 32KiB 상향)
+project_doc_fallback_filenames = [      # AGENTS 대체 파일명(필요 시 규칙 파일로 사용)
+  "AGENTS.md",
+  "AGENTS.override.md"
+]
+
+# --- 생략한 옵션(오버스펙 방지) ---
+# mcp_servers.*               : 전역(~/.codex/config.toml) 설정을 그대로 사용
+# shell_environment_policy.*  : 환경변수 제한은 빌드/테스트 도구에 영향 가능
+# features.*                  : 베타/실험 기능 혼입 방지 (기본값 유지)
+# history.*                   : 기록 정책은 전역 기본값 유지
+# model_instructions_file      : AGENTS.md를 상위 규칙으로 사용
+# project_root_markers         : 기본 탐지(.git 등)로 충분하므로 생략
+# project_doc_fallback_names   : 위 project_doc_fallback_filenames로 대체
+
+# --- 프로필 분리(코딩테스트용/가벼운 용도) ---
+profile = "exam"                        # 기본 활성 프로필(코딩테스트 모드)
+
+[profiles.exam]
+model = "gpt-5.2"                       # 시험용 기본 모델
+model_reasoning_effort = "high"         # 정확도 우선
+approval_policy = "on-request"          # 명령 실행 전 승인
+sandbox_mode = "workspace-write"        # 작업공간 내 쓰기만 허용
+web_search = "live"                     # 라이브 검색 기본 활성화
+
+[profiles.light]
+model = "gpt-5.2"                       # 가벼운 작업용 모델
+model_reasoning_effort = "medium"       # 속도/정확도 균형
+approval_policy = "on-request"          # 승인 방식은 동일
+sandbox_mode = "workspace-write"        # 샌드박스 유지
+web_search = "live"                     # 라이브 검색 기본 활성화
