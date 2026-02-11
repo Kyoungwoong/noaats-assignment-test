@@ -17,6 +17,7 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [results, setResults] = useState<PromoCombinationResult[]>([]);
+  const [selectedCompareIndexes, setSelectedCompareIndexes] = useState<number[]>([]);
   const [evBaseAmount, setEvBaseAmount] = useState("59000");
   const [evScenarios, setEvScenarios] = useState<EvScenario[]>([
     { label: "당첨 5%", probability: 0.05, rewardType: "POINT", rewardValue: 1000 },
@@ -59,6 +60,7 @@ export default function Home() {
         priceCoupons: normalizedPriceCoupons,
         shippingCoupons: normalizedShippingCoupons,
       })) as PromoResponse;
+      setSelectedCompareIndexes([]);
       setResults(json.top3 ?? []);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Unknown error");
@@ -98,6 +100,22 @@ export default function Home() {
   const removeEvScenario = (index: number) => {
     setEvScenarios((prev) => prev.filter((_, i) => i !== index));
   };
+
+  const toggleCompare = (index: number) => {
+    setSelectedCompareIndexes((prev) => {
+      if (prev.includes(index)) {
+        return prev.filter((value) => value !== index);
+      }
+      if (prev.length < 2) {
+        return [...prev, index];
+      }
+      return [prev[1], index];
+    });
+  };
+
+  const compareResults = selectedCompareIndexes
+    .map((index) => results[index])
+    .filter(Boolean);
 
   return (
     <div className={styles.page}>
@@ -452,6 +470,15 @@ export default function Home() {
                   <span className={styles.finalAmount}>
                     최종 결제액 {result.finalAmount.toLocaleString()}원
                   </span>
+                  <button
+                    type="button"
+                    className={`${styles.compareButton} ${
+                      selectedCompareIndexes.includes(index) ? styles.compareButtonActive : ""
+                    }`}
+                    onClick={() => toggleCompare(index)}
+                  >
+                    {selectedCompareIndexes.includes(index) ? "비교 해제" : "비교 선택"}
+                  </button>
                 </div>
                 <div className={styles.resultBody}>
                   <div>
@@ -497,6 +524,60 @@ export default function Home() {
                 </div>
               </article>
             ))}
+          </div>
+          <div className={styles.comparePanel}>
+            <h3 className={styles.compareTitle}>A/B 비교</h3>
+            {compareResults.length < 2 ? (
+              <p className={styles.empty}>비교할 결과 2개를 선택하세요.</p>
+            ) : (
+              <div className={styles.compareTable}>
+                <div className={styles.compareRow}>
+                  <div className={styles.compareLabel}></div>
+                  <div className={styles.compareCell}>
+                    A (#{selectedCompareIndexes[0] + 1})
+                  </div>
+                  <div className={styles.compareCell}>
+                    B (#{selectedCompareIndexes[1] + 1})
+                  </div>
+                </div>
+                <div className={styles.compareRow}>
+                  <div className={styles.compareLabel}>최종 결제액</div>
+                  <div className={styles.compareCell}>
+                    {compareResults[0].finalAmount.toLocaleString()}원
+                  </div>
+                  <div className={styles.compareCell}>
+                    {compareResults[1].finalAmount.toLocaleString()}원
+                  </div>
+                </div>
+                <div className={styles.compareRow}>
+                  <div className={styles.compareLabel}>총 할인</div>
+                  <div className={styles.compareCell}>
+                    {compareResults[0].totalDiscount.toLocaleString()}원
+                  </div>
+                  <div className={styles.compareCell}>
+                    {compareResults[1].totalDiscount.toLocaleString()}원
+                  </div>
+                </div>
+                <div className={styles.compareRow}>
+                  <div className={styles.compareLabel}>실질 할인율(상품)</div>
+                  <div className={styles.compareCell}>
+                    {(compareResults[0].discountRateBySubtotal * 100).toFixed(2)}%
+                  </div>
+                  <div className={styles.compareCell}>
+                    {(compareResults[1].discountRateBySubtotal * 100).toFixed(2)}%
+                  </div>
+                </div>
+                <div className={styles.compareRow}>
+                  <div className={styles.compareLabel}>실질 할인율(총액)</div>
+                  <div className={styles.compareCell}>
+                    {(compareResults[0].discountRateByTotal * 100).toFixed(2)}%
+                  </div>
+                  <div className={styles.compareCell}>
+                    {(compareResults[1].discountRateByTotal * 100).toFixed(2)}%
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </section>
 
