@@ -12,12 +12,19 @@ import type { PaymentMethod } from "./types/promoCommon";
 
 const PAYMENT_METHODS: PaymentMethod[] = ["CARD", "BANK", "KAKAO"];
 const EV_REWARD_TYPES = ["CASH", "POINT", "PERCENT"] as const;
+const TABS = [
+  { id: "CALC", label: "계산" },
+  { id: "EV", label: "EV·포인트" },
+  { id: "POLICY", label: "정책" },
+] as const;
+type TabId = (typeof TABS)[number]["id"];
 
 export default function Home() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [results, setResults] = useState<PromoCombinationResult[]>([]);
   const [selectedCompareIndexes, setSelectedCompareIndexes] = useState<number[]>([]);
+  const [activeTab, setActiveTab] = useState<TabId>("CALC");
   const [evBaseAmount, setEvBaseAmount] = useState("59000");
   const [evScenarios, setEvScenarios] = useState<EvScenario[]>([
     { label: "당첨 5%", probability: 0.05, rewardType: "POINT", rewardValue: 1000 },
@@ -116,30 +123,84 @@ export default function Home() {
   const compareResults = selectedCompareIndexes
     .map((index) => results[index])
     .filter(Boolean);
+  const bestResult = results[0] ?? null;
 
   return (
     <div className={styles.page}>
-      <header className={styles.hero}>
-        <div className={styles.heroContent}>
-          <p className={styles.kicker}>Promo Value Calculator</p>
-          <h1 className={styles.title}>실질 할인 가치 계산기</h1>
-          <p className={styles.subtitle}>
-            가격쿠폰과 배송쿠폰을 기준 정책으로 계산하고, 결제액 최소 Top3 조합을 추천합니다.
-          </p>
+      <header className={styles.navBar}>
+        <div className={styles.navLogo}>
+          <span className={styles.kicker}>Promo Value</span>
+          <strong className={styles.brand}>Calculator</strong>
         </div>
-        <div className={styles.heroCard}>
-          <h2 className={styles.sectionTitle}>고정 정책</h2>
-          <ul className={styles.policyList}>
-            <li>적용 순서: 가격 쿠폰 → 배송 쿠폰</li>
-            <li>minSpend 기준: 상품 정가 합계</li>
-            <li>반올림: 원 단위 버림</li>
-            <li>클램프: min(raw, base, cap)</li>
-            <li>중복 규칙: 가격 1장 + 배송 1장</li>
-          </ul>
+        <nav className={styles.navTabs}>
+          {TABS.map((tab) => (
+            <button
+              key={tab.id}
+              type="button"
+              className={`${styles.tabButton} ${activeTab === tab.id ? styles.tabButtonActive : ""}`}
+              aria-pressed={activeTab === tab.id}
+              onClick={() => setActiveTab(tab.id)}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </nav>
+        <div className={styles.navActions}>
+          <button type="button" className={styles.navButtonGhost}>
+            로그인
+          </button>
+          <button type="button" className={styles.navButton}>
+            마이페이지
+          </button>
         </div>
       </header>
 
       <main className={styles.main}>
+        {activeTab === "POLICY" && (
+          <section className={styles.panel}>
+            <div className={styles.sectionHeader}>
+              <h2 className={styles.sectionTitle}>정책 요약</h2>
+            </div>
+            <ul className={styles.policyList}>
+              <li>적용 순서: 가격 쿠폰 → 배송 쿠폰</li>
+              <li>minSpend 기준: 상품 정가 합계</li>
+              <li>반올림: 원 단위 버림</li>
+              <li>클램프: min(raw, base, cap)</li>
+              <li>중복 규칙: 가격 1장 + 배송 1장</li>
+            </ul>
+          </section>
+        )}
+
+        {activeTab === "CALC" && (
+          <>
+            <section className={styles.overviewPanel}>
+              <div>
+                <p className={styles.kicker}>Promo Value Calculator</p>
+                <h1 className={styles.title}>실질 할인 가치 계산기</h1>
+                <p className={styles.subtitle}>
+                  입력값을 기준으로 쿠폰 조합을 계산하고, 결제액 최소 Top3를 추천합니다.
+                </p>
+              </div>
+              <div className={styles.kpiGrid}>
+                <div className={styles.kpiCard}>
+                  <span className={styles.kpiLabel}>상품 합계</span>
+                  <strong className={styles.kpiValue}>{subtotalValue.toLocaleString()}원</strong>
+                </div>
+                <div className={styles.kpiCard}>
+                  <span className={styles.kpiLabel}>배송비</span>
+                  <strong className={styles.kpiValue}>{Number(shippingFee || 0).toLocaleString()}원</strong>
+                </div>
+                <div className={styles.kpiCard}>
+                  <span className={styles.kpiLabel}>최저 결제액</span>
+                  <strong className={styles.kpiValue}>
+                    {bestResult ? `${bestResult.finalAmount.toLocaleString()}원` : "-"}
+                  </strong>
+                </div>
+              </div>
+            </section>
+
+            <div className={styles.dashboardGrid}>
+              <div className={styles.dashboardCol}>
         <section className={styles.panel}>
           <div className={styles.sectionHeader}>
             <h2 className={styles.sectionTitle}>장바구니 아이템</h2>
@@ -311,20 +372,26 @@ export default function Home() {
                   </label>
                   <label className={styles.fieldSmall}>
                     <span>결제수단 제한</span>
-                    <select
-                      multiple
-                      value={coupon.allowedPaymentMethods}
-                      onChange={(event) => {
-                        const selected = Array.from(event.target.selectedOptions).map((opt) => opt.value as PaymentMethod);
-                        updatePriceCoupon(coupon.id, { allowedPaymentMethods: selected });
-                      }}
-                    >
-                      {PAYMENT_METHODS.map((method) => (
-                        <option key={method} value={method}>
-                          {method}
-                        </option>
-                      ))}
-                    </select>
+                    <div className={styles.chipGroup}>
+                      {PAYMENT_METHODS.map((method) => {
+                        const active = coupon.allowedPaymentMethods.includes(method);
+                        return (
+                          <label key={method} className={`${styles.chip} ${active ? styles.chipActive : ""}`}>
+                            <input
+                              type="checkbox"
+                              checked={active}
+                              onChange={() => {
+                                const next = active
+                                  ? coupon.allowedPaymentMethods.filter((item) => item !== method)
+                                  : [...coupon.allowedPaymentMethods, method];
+                                updatePriceCoupon(coupon.id, { allowedPaymentMethods: next });
+                              }}
+                            />
+                            <span>{method}</span>
+                          </label>
+                        );
+                      })}
+                    </div>
                   </label>
                 </div>
                 <div className={styles.row}>
@@ -403,20 +470,26 @@ export default function Home() {
                   </label>
                   <label className={styles.fieldSmall}>
                     <span>결제수단 제한</span>
-                    <select
-                      multiple
-                      value={coupon.allowedPaymentMethods}
-                      onChange={(event) => {
-                        const selected = Array.from(event.target.selectedOptions).map((opt) => opt.value as PaymentMethod);
-                        updateShippingCoupon(coupon.id, { allowedPaymentMethods: selected });
-                      }}
-                    >
-                      {PAYMENT_METHODS.map((method) => (
-                        <option key={method} value={method}>
-                          {method}
-                        </option>
-                      ))}
-                    </select>
+                    <div className={styles.chipGroup}>
+                      {PAYMENT_METHODS.map((method) => {
+                        const active = coupon.allowedPaymentMethods.includes(method);
+                        return (
+                          <label key={method} className={`${styles.chip} ${active ? styles.chipActive : ""}`}>
+                            <input
+                              type="checkbox"
+                              checked={active}
+                              onChange={() => {
+                                const next = active
+                                  ? coupon.allowedPaymentMethods.filter((item) => item !== method)
+                                  : [...coupon.allowedPaymentMethods, method];
+                                updateShippingCoupon(coupon.id, { allowedPaymentMethods: next });
+                              }}
+                            />
+                            <span>{method}</span>
+                          </label>
+                        );
+                      })}
+                    </div>
                   </label>
                 </div>
                 <div className={styles.row}>
@@ -441,6 +514,8 @@ export default function Home() {
             ))}
           </div>
         </section>
+              </div>
+              <div className={styles.dashboardCol}>
 
         <section className={styles.panel}>
           <div className={styles.sectionHeader}>
@@ -580,8 +655,13 @@ export default function Home() {
             )}
           </div>
         </section>
+              </div>
+            </div>
+          </>
+        )}
 
-        <section className={styles.panel}>
+        {activeTab === "EV" && (
+        <section className={`${styles.panel} ${styles.evPanel}`}>
           <div className={styles.sectionHeader}>
             <h2 className={styles.sectionTitle}>확률형 EV 계산</h2>
             <button type="button" className={styles.primaryButton} onClick={handleEvCalculate}>
@@ -676,6 +756,7 @@ export default function Home() {
             </div>
           )}
         </section>
+        )}
       </main>
 
       <footer className={styles.footer}>
