@@ -7,8 +7,24 @@ import java.util.Objects;
 public final class PriceCouponCalculator {
 	private PriceCouponCalculator() {}
 
-	public static PriceDiscountResult calculate(long subtotal, long shippingFee, PriceCoupon coupon) {
+	public static PriceDiscountResult calculate(
+		long subtotal,
+		long shippingFee,
+		PriceCoupon coupon,
+		PromoCalculationContext context
+	) {
 		Objects.requireNonNull(coupon, "coupon");
+
+		CouponConditionReason conditionReason = CouponConditionEvaluator.evaluate(
+			coupon.excludedCategories(),
+			coupon.allowedPaymentMethods(),
+			coupon.validFrom(),
+			coupon.validTo(),
+			context
+		);
+		if (conditionReason != null) {
+			return new PriceDiscountResult(false, 0L, subtotal + shippingFee, conditionReason.name());
+		}
 
 		Long minSpend = coupon.minSpend();
 		if (minSpend != null && subtotal < minSpend) {

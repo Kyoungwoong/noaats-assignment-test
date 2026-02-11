@@ -5,11 +5,26 @@ import java.util.Objects;
 public final class ShippingCouponCalculator {
 	private ShippingCouponCalculator() {}
 
-	public static ShippingDiscountResult calculate(long shippingFee, ShippingCoupon coupon) {
+	public static ShippingDiscountResult calculate(
+		long shippingFee,
+		ShippingCoupon coupon,
+		PromoCalculationContext context
+	) {
 		Objects.requireNonNull(coupon, "coupon");
 		Long discountAmount = coupon.shippingDiscount();
 		if (discountAmount == null) {
 			throw new IllegalArgumentException("shippingDiscount is required for shipping coupon");
+		}
+
+		CouponConditionReason conditionReason = CouponConditionEvaluator.evaluate(
+			coupon.excludedCategories(),
+			coupon.allowedPaymentMethods(),
+			coupon.validFrom(),
+			coupon.validTo(),
+			context
+		);
+		if (conditionReason != null) {
+			return new ShippingDiscountResult(false, 0L, shippingFee, conditionReason.name());
 		}
 
 		long cap = coupon.cap() == null ? Long.MAX_VALUE : coupon.cap();
