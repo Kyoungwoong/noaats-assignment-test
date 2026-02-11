@@ -2,24 +2,7 @@
   min-height: 100vh;
   background: radial-gradient(circle at top, #fff4e0 0%, #f3f0e8 55%, #f0e8da 100%);
   color: var(--ink);
-  padding: 48px 24px 64px;
-}
-
-.hero {
-  max-width: 1100px;
-  margin: 0 auto 32px;
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: 24px;
-  align-items: stretch;
-}
-
-.heroContent {
-  background: var(--panel);
-  border: 1px solid var(--border);
-  border-radius: 20px;
-  padding: 28px;
-  box-shadow: 0 18px 45px rgba(90, 60, 20, 0.12);
+  padding: 28px 24px 64px;
 }
 
 .kicker {
@@ -41,12 +24,87 @@
   line-height: 1.6;
 }
 
-.heroCard {
-  background: var(--panel);
-  border: 1px solid var(--border);
+.navBar {
+  max-width: 1100px;
+  margin: 0 auto 20px;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 18px;
   border-radius: 20px;
-  padding: 28px;
-  box-shadow: 0 18px 45px rgba(90, 60, 20, 0.1);
+  background: rgba(255, 255, 255, 0.8);
+  border: 1px solid var(--border);
+  box-shadow: 0 18px 32px rgba(90, 60, 20, 0.08);
+  backdrop-filter: blur(6px);
+}
+
+.navLogo {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.brand {
+  font-size: 18px;
+  letter-spacing: 0.02em;
+}
+
+.navTabs {
+  display: flex;
+  gap: 10px;
+  padding: 6px;
+  border-radius: 999px;
+  background: rgba(255, 248, 235, 0.9);
+  border: 1px solid rgba(140, 90, 30, 0.2);
+}
+
+.navActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.navButton {
+  border: 1px solid rgba(140, 90, 30, 0.3);
+  border-radius: 999px;
+  padding: 8px 16px;
+  background: #fff;
+  font-weight: 600;
+  cursor: pointer;
+  color: var(--ink);
+}
+
+.navButtonGhost {
+  border: 1px solid transparent;
+  border-radius: 999px;
+  padding: 8px 16px;
+  background: rgba(140, 90, 30, 0.08);
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.tabButton {
+  border: 1px solid transparent;
+  background: transparent;
+  padding: 8px 16px;
+  border-radius: 999px;
+  font-weight: 600;
+  color: var(--muted);
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
+}
+
+.tabButton:hover {
+  transform: translateY(-1px);
+  background: rgba(140, 90, 30, 0.08);
+  color: var(--ink);
+}
+
+.tabButtonActive {
+  background: rgba(140, 90, 30, 0.2);
+  color: var(--ink);
+  border-color: rgba(140, 90, 30, 0.35);
 }
 
 .policyList {
@@ -59,6 +117,51 @@
 .main {
   max-width: 1100px;
   margin: 0 auto;
+  display: grid;
+  gap: 20px;
+}
+
+.overviewPanel {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(255, 248, 235, 0.9));
+  border: 1px solid var(--border);
+  border-radius: 22px;
+  padding: 28px;
+  display: grid;
+  gap: 20px;
+  box-shadow: 0 18px 36px rgba(90, 60, 20, 0.1);
+}
+
+.kpiGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+}
+
+.kpiCard {
+  border-radius: 16px;
+  border: 1px solid rgba(140, 90, 30, 0.2);
+  padding: 14px 16px;
+  background: #fff;
+  display: grid;
+  gap: 6px;
+}
+
+.kpiLabel {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.kpiValue {
+  font-size: 18px;
+}
+
+.dashboardGrid {
+  display: grid;
+  gap: 20px;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+}
+
+.dashboardCol {
   display: grid;
   gap: 20px;
 }
@@ -176,6 +279,36 @@
   padding: 0 12px;
   font-size: 14px;
   background: #fff;
+  color: var(--ink);
+}
+
+.chipGroup {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: #fff;
+  font-size: 12px;
+  cursor: pointer;
+  color: var(--muted);
+}
+
+.chip input {
+  width: 14px;
+  height: 14px;
+}
+
+.chipActive {
+  border-color: rgba(140, 90, 30, 0.4);
+  background: rgba(140, 90, 30, 0.1);
   color: var(--ink);
 }
 
@@ -327,6 +460,25 @@
 @media (max-width: 720px) {
   .page {
     padding: 32px 16px 48px;
+  }
+
+  .navBar {
+    grid-template-columns: 1fr;
+    justify-items: center;
+  }
+
+  .navTabs {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .navActions {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .dashboardGrid {
+    grid-template-columns: 1fr;
   }
 
   .rowBetween {
