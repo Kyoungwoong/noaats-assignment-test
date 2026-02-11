@@ -10,9 +10,11 @@ class HealthControllerTest {
 	@Test
 	void returnsOkWithTime() {
 		HealthController controller = new HealthController();
-		HealthController.HealthResponse response = controller.health();
+		var response = controller.health();
 
-		assertEquals("ok", response.status());
-		assertNotNull(response.time());
+		assertEquals(true, response.success());
+		assertNotNull(response.data());
+		assertEquals("ok", response.data().status());
+		assertNotNull(response.data().time());
 	}
 }

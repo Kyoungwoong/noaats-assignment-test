@@ -11,6 +11,9 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
+import com.noaats.backend.api.ApiEnvelopeSchema;
+import com.noaats.backend.api.ApiErrorResponseSchema;
+import com.noaats.backend.api.ApiEnvelope;
 import com.noaats.backend.dto.promo.PromoDtoMapper;
 import com.noaats.backend.dto.promo.PromoRequestDto;
 import com.noaats.backend.dto.promo.PromoResponseDto;
@@ -33,16 +36,21 @@ public class PromoController {
 	@ApiResponse(
 		responseCode = "200",
 		description = "Top3 combinations computed",
-		content = @Content(schema = @Schema(implementation = PromoResponseDto.class))
+		content = @Content(schema = @Schema(implementation = ApiEnvelopeSchema.class))
 	)
-	@ApiResponse(responseCode = "400", description = "Validation error")
-	public PromoResponseDto calculate(@Valid @RequestBody PromoRequestDto request) {
+	@ApiResponse(
+		responseCode = "400",
+		description = "Validation error",
+		content = @Content(schema = @Schema(implementation = ApiErrorResponseSchema.class))
+	)
+	public ApiEnvelope<PromoResponseDto> calculate(@Valid @RequestBody PromoRequestDto request) {
 		PromoDtoMapper.PromoRequest domainRequest = PromoDtoMapper.toDomainRequest(request);
-		return PromoDtoMapper.toResponse(promoService.recommendTop3(
+		PromoResponseDto response = PromoDtoMapper.toResponse(promoService.recommendTop3(
 			domainRequest.subtotal(),
 			domainRequest.shippingFee(),
 			domainRequest.priceCoupons(),
 			domainRequest.shippingCoupons()
 		));
+		return ApiEnvelope.ok(response);
 	}
 }
