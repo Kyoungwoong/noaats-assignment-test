@@ -878,9 +878,18 @@ export default function Home() {
                   {selectedHistory ? (
                     <>
                       <h3 className={styles.compareTitle}>히스토리 상세</h3>
-                      <pre className={styles.historyJson}>
-                        {JSON.stringify(selectedHistory.request, null, 2)}
-                      </pre>
+                      <div className={styles.historySection}>
+                        <p className={styles.label}>요청 입력</p>
+                        <pre className={styles.historyJson}>
+                          {JSON.stringify(selectedHistory.request, null, 2)}
+                        </pre>
+                      </div>
+                      <div className={styles.historySection}>
+                        <p className={styles.label}>계산 결과</p>
+                        <pre className={styles.historyJson}>
+                          {JSON.stringify(selectedHistory.response, null, 2)}
+                        </pre>
+                      </div>
                     </>
                   ) : (
                     <p className={styles.empty}>상세를 선택하세요.</p>
