@@ -660,7 +660,7 @@ export default function Home() {
         )}
 
         {activeTab === "EV" && (
-        <section className={styles.panel}>
+        <section className={`${styles.panel} ${styles.evPanel}`}>
           <div className={styles.sectionHeader}>
             <h2 className={styles.sectionTitle}>확률형 EV 계산</h2>
             <button type="button" className={styles.primaryButton} onClick={handleEvCalculate}>
