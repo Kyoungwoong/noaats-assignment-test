@@ -4,20 +4,22 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
-import com.noaats.backend.promo.PriceCoupon;
+import com.noaats.backend.dto.promo.PromoDtoMapper;
 import com.noaats.backend.promo.PromoCalculator;
 import com.noaats.backend.promo.PromoCombinationResult;
-import com.noaats.backend.promo.ShippingCoupon;
 
 @Service
 public class PromoService {
 
-	public List<PromoCombinationResult> recommendTop3(
-		long subtotal,
-		long shippingFee,
-		List<PriceCoupon> priceCoupons,
-		List<ShippingCoupon> shippingCoupons
-	) {
-		return PromoCalculator.recommendTop3(subtotal, shippingFee, priceCoupons, shippingCoupons);
+	public List<PromoCombinationResult> recommendTop3(PromoDtoMapper.PromoRequest request) {
+		return PromoCalculator.recommendTop3(
+			request.subtotal(),
+			request.shippingFee(),
+			request.items(),
+			request.paymentMethod(),
+			request.now(),
+			request.priceCoupons(),
+			request.shippingCoupons()
+		);
 	}
 }

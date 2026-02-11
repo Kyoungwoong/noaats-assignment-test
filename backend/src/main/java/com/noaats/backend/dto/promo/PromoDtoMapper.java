@@ -3,6 +3,8 @@ package com.noaats.backend.dto.promo;
 import java.util.List;
 import java.util.Objects;
 
+import com.noaats.backend.promo.CartItem;
+import com.noaats.backend.promo.PaymentMethod;
 import com.noaats.backend.promo.PriceCoupon;
 import com.noaats.backend.promo.PriceCouponType;
 import com.noaats.backend.promo.PriceDiscountResult;
@@ -10,22 +12,33 @@ import com.noaats.backend.promo.PromoCombinationResult;
 import com.noaats.backend.promo.ShippingCoupon;
 import com.noaats.backend.promo.ShippingDiscountResult;
 
+import java.time.Instant;
+
 public final class PromoDtoMapper {
 	private PromoDtoMapper() {}
 
 	public static PromoRequest toDomainRequest(PromoRequestDto request) {
 		Objects.requireNonNull(request, "request");
+		List<CartItem> items = request.items().stream()
+			.map(PromoDtoMapper::toDomain)
+			.toList();
 		List<PriceCoupon> priceCoupons = request.priceCoupons().stream()
 			.map(PromoDtoMapper::toDomain)
 			.toList();
 		List<ShippingCoupon> shippingCoupons = request.shippingCoupons().stream()
 			.map(PromoDtoMapper::toDomain)
 			.toList();
+		long subtotal = items.stream()
+			.mapToLong(item -> item.price() * item.quantity())
+			.sum();
 		return new PromoRequest(
-			request.subtotal(),
+			subtotal,
+			items,
 			request.shippingFee(),
+			request.paymentMethod(),
 			priceCoupons,
-			shippingCoupons
+			shippingCoupons,
+			Instant.now()
 		);
 	}
 
@@ -45,12 +58,34 @@ public final class PromoDtoMapper {
 		if (type == PriceCouponType.FIXED && dto.amount() == null) {
 			throw new IllegalArgumentException("amount is required for FIXED coupon");
 		}
-		return new PriceCoupon(type, dto.ratePercent(), dto.amount(), dto.minSpend(), dto.cap());
+		return new PriceCoupon(
+			type,
+			dto.ratePercent(),
+			dto.amount(),
+			dto.minSpend(),
+			dto.cap(),
+			dto.excludedCategories(),
+			dto.allowedPaymentMethods(),
+			dto.validFrom(),
+			dto.validTo()
+		);
 	}
 
 	private static ShippingCoupon toDomain(ShippingCouponDto dto) {
 		Objects.requireNonNull(dto, "shippingCoupon");
-		return new ShippingCoupon(dto.shippingDiscount(), dto.cap());
+		return new ShippingCoupon(
+			dto.shippingDiscount(),
+			dto.cap(),
+			dto.excludedCategories(),
+			dto.allowedPaymentMethods(),
+			dto.validFrom(),
+			dto.validTo()
+		);
+	}
+
+	private static CartItem toDomain(CartItemDto dto) {
+		Objects.requireNonNull(dto, "cartItem");
+		return new CartItem(dto.name(), dto.price(), dto.quantity(), dto.category());
 	}
 
 	private static PromoCombinationResultDto toDto(PromoCombinationResult result) {
@@ -74,12 +109,23 @@ public final class PromoDtoMapper {
 			coupon.ratePercent(),
 			coupon.amount(),
 			coupon.minSpend(),
-			coupon.cap()
+			coupon.cap(),
+			coupon.excludedCategories(),
+			coupon.allowedPaymentMethods(),
+			coupon.validFrom(),
+			coupon.validTo()
 		);
 	}
 
 	private static ShippingCouponDto toDto(ShippingCoupon coupon) {
-		return new ShippingCouponDto(coupon.shippingDiscount(), coupon.cap());
+		return new ShippingCouponDto(
+			coupon.shippingDiscount(),
+			coupon.cap(),
+			coupon.excludedCategories(),
+			coupon.allowedPaymentMethods(),
+			coupon.validFrom(),
+			coupon.validTo()
+		);
 	}
 
 	private static PriceDiscountResultDto toDto(PriceDiscountResult result) {
@@ -102,8 +148,11 @@ public final class PromoDtoMapper {
 
 	public record PromoRequest(
 		long subtotal,
+		List<CartItem> items,
 		long shippingFee,
+		PaymentMethod paymentMethod,
 		List<PriceCoupon> priceCoupons,
-		List<ShippingCoupon> shippingCoupons
+		List<ShippingCoupon> shippingCoupons,
+		Instant now
 	) {}
 }

@@ -45,12 +45,7 @@ public class PromoController {
 	)
 	public ApiEnvelope<PromoResponseDto> calculate(@Valid @RequestBody PromoRequestDto request) {
 		PromoDtoMapper.PromoRequest domainRequest = PromoDtoMapper.toDomainRequest(request);
-		PromoResponseDto response = PromoDtoMapper.toResponse(promoService.recommendTop3(
-			domainRequest.subtotal(),
-			domainRequest.shippingFee(),
-			domainRequest.priceCoupons(),
-			domainRequest.shippingCoupons()
-		));
+		PromoResponseDto response = PromoDtoMapper.toResponse(promoService.recommendTop3(domainRequest));
 		return ApiEnvelope.ok(response);
 	}
 }
