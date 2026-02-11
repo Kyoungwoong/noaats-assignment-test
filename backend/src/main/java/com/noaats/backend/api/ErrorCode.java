@@ -7,6 +7,7 @@ public enum ErrorCode {
 	BAD_REQUEST(HttpStatus.BAD_REQUEST, "Bad request"),
 	UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "Unauthorized"),
 	FORBIDDEN(HttpStatus.FORBIDDEN, "Forbidden"),
+	CONFLICT(HttpStatus.CONFLICT, "Conflict"),
 	NOT_FOUND(HttpStatus.NOT_FOUND, "Resource not found"),
 	METHOD_NOT_ALLOWED(HttpStatus.METHOD_NOT_ALLOWED, "Method not allowed"),
 	UNSUPPORTED_MEDIA_TYPE(HttpStatus.UNSUPPORTED_MEDIA_TYPE, "Unsupported media type"),

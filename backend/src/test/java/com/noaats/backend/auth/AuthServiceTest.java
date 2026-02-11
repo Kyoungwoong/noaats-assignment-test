@@ -38,12 +38,31 @@ class AuthServiceTest {
 		UserRepository userRepository = mock(UserRepository.class);
 		PasswordEncoder encoder = mock(PasswordEncoder.class);
 		JwtService jwtService = mock(JwtService.class);
-		when(userRepository.existsByUsername("user")).thenReturn(true);
+		UserEntity existing = new UserEntity("user", "hashed");
+		when(userRepository.findByUsername("user")).thenReturn(Optional.of(existing));
+		when(encoder.matches("pass", "hashed")).thenReturn(false);
 
 		AuthService service = new AuthService(userRepository, encoder, jwtService);
 
 		ApiException ex = assertThrows(ApiException.class, () -> service.register("user", "pass"));
-		assertEquals(ErrorCode.BAD_REQUEST, ex.errorCode());
+		assertEquals(ErrorCode.CONFLICT, ex.errorCode());
+	}
+
+	@Test
+	void register_returns_token_when_user_exists_and_password_matches() {
+		UserRepository userRepository = mock(UserRepository.class);
+		PasswordEncoder encoder = mock(PasswordEncoder.class);
+		JwtService jwtService = mock(JwtService.class);
+		UserEntity existing = new UserEntity("user", "hashed");
+		when(userRepository.findByUsername("user")).thenReturn(Optional.of(existing));
+		when(encoder.matches("pass", "hashed")).thenReturn(true);
+		when(jwtService.generateToken(existing)).thenReturn("token");
+
+		AuthService service = new AuthService(userRepository, encoder, jwtService);
+
+		String token = service.register("user", "pass");
+
+		assertEquals("token", token);
 	}
 
 	@Test
