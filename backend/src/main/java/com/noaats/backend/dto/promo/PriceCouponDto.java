@@ -5,6 +5,7 @@ import jakarta.validation.constraints.PositiveOrZero;
 
 import com.noaats.backend.promo.PriceCouponType;
 
+@ValidPriceCoupon
 public record PriceCouponDto(
 	@NotNull PriceCouponType type,
 	@PositiveOrZero Integer ratePercent,
