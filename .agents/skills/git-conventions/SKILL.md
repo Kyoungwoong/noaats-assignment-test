@@ -127,16 +127,16 @@ refactor/789-cleanup-utils
 ```
 
 ### 5.2 AI Agent Branch Prefix Rule
-- Branches created by an AI agent MUST be prefixed with `musinsa/`.
+- Branches created by an AI agent MUST be prefixed with `noaats/`.
 
 Format:
 ```bash
-musinsa/<type>/<issue-number>-<short-description>
+noaats/<type>/<issue-number>-<short-description>
 ```
 
 Example:
 ```bash
-musinsa/feat/123-user-login
+noaats/feat/123-user-login
 ```
 This rule exists to:
 - Clearly distinguish AI-generated branches 

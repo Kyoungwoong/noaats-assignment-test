@@ -64,7 +64,7 @@ Priority order:
 - MUST: Create an Issue first, then create a branch named `noaats/<type>/<issue-number>-<short-description>` from `main`.
 - MUST: Make **small, feature-scoped commits**. If a change can be split, it must be split.
 - MUST: Use commit message format `<type>(<scope>): <subject>` as defined in `git-workflow`.
-- MUST: Store AI prompt/response summaries under `prompts/` by feature.
+- MUST: Store AI prompt/response **raw, verbatim logs** under `prompts/` by feature.
 - MUST: Use relevant skills before working, and follow their instructions.
 
 ---
@@ -226,7 +226,7 @@ Prepare the deliverables NoahATS expects.
     - sample scenarios (inputs + expected outputs)
 - Planning/Dev document (this can be the 기획서 + `plan.md`)
 - (Strongly recommended) `AI_COLLABORATION.md`:
-    - prompts used (summarized)
+    - prompts used (verbatim or linked to `prompts/`)
     - what AI produced
     - what was corrected/verified and how
 
