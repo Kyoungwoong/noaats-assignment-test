@@ -7,5 +7,7 @@ public record PromoCombinationResult(
 	ShippingDiscountResult shippingResult,
 	long totalDiscount,
 	long finalAmount,
-	String reason
+	String reason,
+	double discountRateBySubtotal,
+	double discountRateByTotal
 ) {}
