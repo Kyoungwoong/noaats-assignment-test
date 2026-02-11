@@ -149,6 +149,7 @@ export default function Home() {
     .map((index) => results[index])
     .filter(Boolean);
   const bestResult = results[0] ?? null;
+  const visibleTabs = TABS;
 
   const handleLogin = async (mode: "login" | "register") => {
     setAuthMessage(null);
@@ -169,6 +170,7 @@ export default function Home() {
   const handleLogout = () => {
     window.localStorage.removeItem("noaats_token");
     setAuthToken(null);
+    setActiveTab("CALC");
     setHistoryList([]);
     setSelectedHistory(null);
   };
@@ -193,7 +195,7 @@ export default function Home() {
           <strong className={styles.brand}>Calculator</strong>
         </div>
         <nav className={styles.navTabs}>
-          {TABS.map((tab) => (
+          {visibleTabs.map((tab) => (
             <button
               key={tab.id}
               type="button"
@@ -206,21 +208,18 @@ export default function Home() {
           ))}
         </nav>
         <div className={styles.navActions}>
-          <button
-            type="button"
-            className={styles.navButtonGhost}
-            onClick={() => {
-              if (authToken) {
-                handleLogout();
-                return;
-              }
-              setAuthView("login");
-              setActiveTab("MY");
-            }}
-          >
-            {authToken ? "로그아웃" : "로그인"}
-          </button>
-          {!authToken && (
+          {!authToken ? (
+            <>
+              <button
+                type="button"
+                className={styles.navButtonGhost}
+                onClick={() => {
+                  setAuthView("login");
+                  setActiveTab("MY");
+                }}
+              >
+                로그인
+              </button>
             <button
               type="button"
               className={styles.navButtonGhost}
@@ -231,10 +230,17 @@ export default function Home() {
             >
               회원가입
             </button>
+            </>
+          ) : (
+            <>
+              <button type="button" className={styles.navButtonGhost} onClick={handleLogout}>
+                로그아웃
+              </button>
+              <button type="button" className={styles.navButton} onClick={() => setActiveTab("MY")}>
+                마이페이지
+              </button>
+            </>
           )}
-          <button type="button" className={styles.navButton} onClick={() => setActiveTab("MY")}>
-            마이페이지
-          </button>
         </div>
       </header>
 
