@@ -1,4 +1,11 @@
-import type { PriceCouponType } from "./promoCommon";
+import type { PaymentMethod, PriceCouponType } from "./promoCommon";
+
+export type CartItem = {
+  name: string;
+  price: number;
+  quantity: number;
+  category: string;
+};
 
 export type PriceCoupon = {
   type: PriceCouponType;
@@ -6,11 +13,28 @@ export type PriceCoupon = {
   amount?: number | null;
   minSpend?: number | null;
   cap?: number | null;
+  excludedCategories?: string[] | null;
+  allowedPaymentMethods?: PaymentMethod[] | null;
+  validFrom?: string | null;
+  validTo?: string | null;
 };
 
 export type ShippingCoupon = {
   shippingDiscount?: number | null;
   cap?: number | null;
+  excludedCategories?: string[] | null;
+  allowedPaymentMethods?: PaymentMethod[] | null;
+  validFrom?: string | null;
+  validTo?: string | null;
+};
+
+export type PromoRequest = {
+  subtotal: number;
+  items: CartItem[];
+  shippingFee: number;
+  paymentMethod: PaymentMethod;
+  priceCoupons: PriceCoupon[];
+  shippingCoupons: ShippingCoupon[];
 };
 
 export type PriceDiscountResult = {

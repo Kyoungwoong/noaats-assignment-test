@@ -6,6 +6,9 @@ import { calculatePromo, API_URL } from "./lib/promoApi";
 import { formatCurrency, formatPriceCoupon } from "./lib/format";
 import { usePromoForm } from "./hooks/usePromoForm";
 import type { PromoCombinationResult, PromoResponse } from "./types/promoApi";
+import type { PaymentMethod } from "./types/promoCommon";
+
+const PAYMENT_METHODS: PaymentMethod[] = ["CARD", "BANK", "KAKAO"];
 
 export default function Home() {
   const [loading, setLoading] = useState(false);
@@ -13,14 +16,18 @@ export default function Home() {
   const [results, setResults] = useState<PromoCombinationResult[]>([]);
 
   const {
-    subtotal,
-    setSubtotal,
+    items,
+    addItem,
+    removeItem,
+    updateItem,
+    subtotalValue,
     shippingFee,
     setShippingFee,
+    paymentMethod,
+    setPaymentMethod,
     priceCoupons,
     shippingCoupons,
-    subtotalValue,
-    shippingValue,
+    normalizedItems,
     normalizedPriceCoupons,
     normalizedShippingCoupons,
     addPriceCoupon,
@@ -37,7 +44,9 @@ export default function Home() {
     try {
       const json = (await calculatePromo({
         subtotal: subtotalValue,
-        shippingFee: shippingValue,
+        items: normalizedItems,
+        shippingFee: Number(shippingFee) || 0,
+        paymentMethod,
         priceCoupons: normalizedPriceCoupons,
         shippingCoupons: normalizedShippingCoupons,
       })) as PromoResponse;
@@ -73,28 +82,87 @@ export default function Home() {
 
       <main className={styles.main}>
         <section className={styles.panel}>
-          <h2 className={styles.sectionTitle}>장바구니 입력</h2>
-          <div className={styles.gridTwo}>
-            <label className={styles.field}>
-              <span>상품 합계</span>
-              <input
-                type="number"
-                min="0"
-                value={subtotal}
-                onChange={(event) => setSubtotal(event.target.value)}
-                placeholder="예: 59000"
-              />
+          <div className={styles.sectionHeader}>
+            <h2 className={styles.sectionTitle}>장바구니 아이템</h2>
+            <button type="button" className={styles.ghostButton} onClick={addItem}>
+              + 아이템 추가
+            </button>
+          </div>
+          <div className={styles.stack}>
+            {items.map((item) => (
+              <div key={item.id} className={styles.couponCard}>
+                <div className={styles.rowBetween}>
+                  <div className={styles.row}>
+                    <label className={styles.fieldSmall}>
+                      <span>이름</span>
+                      <input
+                        value={item.name}
+                        onChange={(event) => updateItem(item.id, { name: event.target.value })}
+                      />
+                    </label>
+                    <label className={styles.fieldSmall}>
+                      <span>카테고리</span>
+                      <input
+                        value={item.category}
+                        onChange={(event) => updateItem(item.id, { category: event.target.value })}
+                      />
+                    </label>
+                  </div>
+                  <button
+                    type="button"
+                    className={styles.removeButton}
+                    onClick={() => removeItem(item.id)}
+                  >
+                    삭제
+                  </button>
+                </div>
+                <div className={styles.row}>
+                  <label className={styles.fieldSmall}>
+                    <span>가격</span>
+                    <input
+                      type="number"
+                      min="0"
+                      value={item.price}
+                      onChange={(event) => updateItem(item.id, { price: event.target.value })}
+                    />
+                  </label>
+                  <label className={styles.fieldSmall}>
+                    <span>수량</span>
+                    <input
+                      type="number"
+                      min="1"
+                      value={item.quantity}
+                      onChange={(event) => updateItem(item.id, { quantity: event.target.value })}
+                    />
+                  </label>
+                </div>
+              </div>
+            ))}
+          </div>
+          <div className={styles.row}>
+            <label className={styles.fieldSmall}>
+              <span>결제수단</span>
+              <select value={paymentMethod} onChange={(event) => setPaymentMethod(event.target.value as PaymentMethod)}>
+                {PAYMENT_METHODS.map((method) => (
+                  <option key={method} value={method}>
+                    {method}
+                  </option>
+                ))}
+              </select>
             </label>
-            <label className={styles.field}>
+            <label className={styles.fieldSmall}>
               <span>배송비</span>
               <input
                 type="number"
                 min="0"
                 value={shippingFee}
                 onChange={(event) => setShippingFee(event.target.value)}
-                placeholder="예: 3000"
               />
             </label>
+            <div className={styles.fieldSmall}>
+              <span>상품 합계</span>
+              <strong>{subtotalValue.toLocaleString()}원</strong>
+            </div>
           </div>
         </section>
 
@@ -129,9 +197,7 @@ export default function Home() {
                           type="number"
                           min="0"
                           value={coupon.ratePercent}
-                          onChange={(event) =>
-                            updatePriceCoupon(coupon.id, { ratePercent: event.target.value })
-                          }
+                          onChange={(event) => updatePriceCoupon(coupon.id, { ratePercent: event.target.value })}
                         />
                       </label>
                     ) : (
@@ -171,6 +237,52 @@ export default function Home() {
                       min="0"
                       value={coupon.cap}
                       onChange={(event) => updatePriceCoupon(coupon.id, { cap: event.target.value })}
+                    />
+                  </label>
+                </div>
+                <div className={styles.row}>
+                  <label className={styles.fieldSmall}>
+                    <span>제외 카테고리(,)</span>
+                    <input
+                      value={coupon.excludedCategories}
+                      onChange={(event) =>
+                        updatePriceCoupon(coupon.id, { excludedCategories: event.target.value })
+                      }
+                    />
+                  </label>
+                  <label className={styles.fieldSmall}>
+                    <span>결제수단 제한</span>
+                    <select
+                      multiple
+                      value={coupon.allowedPaymentMethods}
+                      onChange={(event) => {
+                        const selected = Array.from(event.target.selectedOptions).map((opt) => opt.value as PaymentMethod);
+                        updatePriceCoupon(coupon.id, { allowedPaymentMethods: selected });
+                      }}
+                    >
+                      {PAYMENT_METHODS.map((method) => (
+                        <option key={method} value={method}>
+                          {method}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                </div>
+                <div className={styles.row}>
+                  <label className={styles.fieldSmall}>
+                    <span>validFrom</span>
+                    <input
+                      type="datetime-local"
+                      value={coupon.validFrom}
+                      onChange={(event) => updatePriceCoupon(coupon.id, { validFrom: event.target.value })}
+                    />
+                  </label>
+                  <label className={styles.fieldSmall}>
+                    <span>validTo</span>
+                    <input
+                      type="datetime-local"
+                      value={coupon.validTo}
+                      onChange={(event) => updatePriceCoupon(coupon.id, { validTo: event.target.value })}
                     />
                   </label>
                 </div>
@@ -219,6 +331,52 @@ export default function Home() {
                   >
                     삭제
                   </button>
+                </div>
+                <div className={styles.row}>
+                  <label className={styles.fieldSmall}>
+                    <span>제외 카테고리(,)</span>
+                    <input
+                      value={coupon.excludedCategories}
+                      onChange={(event) =>
+                        updateShippingCoupon(coupon.id, { excludedCategories: event.target.value })
+                      }
+                    />
+                  </label>
+                  <label className={styles.fieldSmall}>
+                    <span>결제수단 제한</span>
+                    <select
+                      multiple
+                      value={coupon.allowedPaymentMethods}
+                      onChange={(event) => {
+                        const selected = Array.from(event.target.selectedOptions).map((opt) => opt.value as PaymentMethod);
+                        updateShippingCoupon(coupon.id, { allowedPaymentMethods: selected });
+                      }}
+                    >
+                      {PAYMENT_METHODS.map((method) => (
+                        <option key={method} value={method}>
+                          {method}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                </div>
+                <div className={styles.row}>
+                  <label className={styles.fieldSmall}>
+                    <span>validFrom</span>
+                    <input
+                      type="datetime-local"
+                      value={coupon.validFrom}
+                      onChange={(event) => updateShippingCoupon(coupon.id, { validFrom: event.target.value })}
+                    />
+                  </label>
+                  <label className={styles.fieldSmall}>
+                    <span>validTo</span>
+                    <input
+                      type="datetime-local"
+                      value={coupon.validTo}
+                      onChange={(event) => updateShippingCoupon(coupon.id, { validTo: event.target.value })}
+                    />
+                  </label>
                 </div>
               </div>
             ))}

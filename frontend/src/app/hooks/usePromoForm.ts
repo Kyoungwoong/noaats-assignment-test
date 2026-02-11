@@ -1,8 +1,20 @@
 import { useMemo, useState } from "react";
 
-import type { PriceCoupon, ShippingCoupon } from "../types/promoApi";
-import type { PriceCouponInput, ShippingCouponInput } from "../types/promoForm";
-import type { PriceCouponType } from "../types/promoCommon";
+import type { CartItem, PriceCoupon, ShippingCoupon } from "../types/promoApi";
+import type {
+  CartItemInput,
+  PriceCouponInput,
+  ShippingCouponInput,
+} from "../types/promoForm";
+import type { PaymentMethod, PriceCouponType } from "../types/promoCommon";
+
+const emptyItem = (): CartItemInput => ({
+  id: crypto.randomUUID(),
+  name: "Item",
+  price: "10000",
+  quantity: "1",
+  category: "SHOES",
+});
 
 const emptyPriceCoupon = (): PriceCouponInput => ({
   id: crypto.randomUUID(),
@@ -11,12 +23,20 @@ const emptyPriceCoupon = (): PriceCouponInput => ({
   amount: "",
   minSpend: "",
   cap: "",
+  excludedCategories: "",
+  allowedPaymentMethods: [],
+  validFrom: "",
+  validTo: "",
 });
 
 const emptyShippingCoupon = (): ShippingCouponInput => ({
   id: crypto.randomUUID(),
   shippingDiscount: "",
   cap: "",
+  excludedCategories: "",
+  allowedPaymentMethods: [],
+  validFrom: "",
+  validTo: "",
 });
 
 const toNullableNumber = (value: string): number | null => {
@@ -27,9 +47,16 @@ const toNullableNumber = (value: string): number | null => {
   return Number.isFinite(parsed) ? parsed : null;
 };
 
+const parseList = (value: string): string[] =>
+  value
+    .split(",")
+    .map((entry) => entry.trim())
+    .filter((entry) => entry.length > 0);
+
 export const usePromoForm = () => {
-  const [subtotal, setSubtotal] = useState("59000");
+  const [items, setItems] = useState<CartItemInput[]>([emptyItem()]);
   const [shippingFee, setShippingFee] = useState("3000");
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("CARD");
   const [priceCoupons, setPriceCoupons] = useState<PriceCouponInput[]>([
     {
       id: crypto.randomUUID(),
@@ -38,6 +65,10 @@ export const usePromoForm = () => {
       amount: "",
       minSpend: "50000",
       cap: "8000",
+      excludedCategories: "",
+      allowedPaymentMethods: ["CARD"],
+      validFrom: "",
+      validTo: "",
     },
     {
       id: crypto.randomUUID(),
@@ -46,6 +77,10 @@ export const usePromoForm = () => {
       amount: "7000",
       minSpend: "40000",
       cap: "",
+      excludedCategories: "",
+      allowedPaymentMethods: ["CARD"],
+      validFrom: "",
+      validTo: "",
     },
   ]);
   const [shippingCoupons, setShippingCoupons] = useState<ShippingCouponInput[]>([
@@ -53,11 +88,33 @@ export const usePromoForm = () => {
       id: crypto.randomUUID(),
       shippingDiscount: "3000",
       cap: "3000",
+      excludedCategories: "",
+      allowedPaymentMethods: ["CARD"],
+      validFrom: "",
+      validTo: "",
     },
   ]);
 
-  const subtotalValue = toNullableNumber(subtotal) ?? 0;
+  const subtotalValue = useMemo(() => {
+    return items.reduce((sum, item) => {
+      const price = toNullableNumber(item.price) ?? 0;
+      const quantity = toNullableNumber(item.quantity) ?? 0;
+      return sum + price * quantity;
+    }, 0);
+  }, [items]);
+
   const shippingValue = toNullableNumber(shippingFee) ?? 0;
+
+  const normalizedItems = useMemo(() => {
+    return items
+      .map((item): CartItem => ({
+        name: item.name.trim() || "Item",
+        price: toNullableNumber(item.price) ?? 0,
+        quantity: Math.max(1, Math.trunc(toNullableNumber(item.quantity) ?? 1)),
+        category: item.category.trim() || "MISC",
+      }))
+      .filter((item) => item.price > 0 && item.quantity > 0);
+  }, [items]);
 
   const normalizedPriceCoupons = useMemo(() => {
     return priceCoupons
@@ -67,6 +124,10 @@ export const usePromoForm = () => {
         amount: coupon.type === "FIXED" ? toNullableNumber(coupon.amount) : null,
         minSpend: toNullableNumber(coupon.minSpend),
         cap: toNullableNumber(coupon.cap),
+        excludedCategories: parseList(coupon.excludedCategories),
+        allowedPaymentMethods: coupon.allowedPaymentMethods,
+        validFrom: coupon.validFrom.trim() || null,
+        validTo: coupon.validTo.trim() || null,
       }))
       .filter((coupon) => {
         if (coupon.type === "PERCENT") {
@@ -81,9 +142,25 @@ export const usePromoForm = () => {
       .map((coupon): ShippingCoupon => ({
         shippingDiscount: toNullableNumber(coupon.shippingDiscount),
         cap: toNullableNumber(coupon.cap),
+        excludedCategories: parseList(coupon.excludedCategories),
+        allowedPaymentMethods: coupon.allowedPaymentMethods,
+        validFrom: coupon.validFrom.trim() || null,
+        validTo: coupon.validTo.trim() || null,
       }))
       .filter((coupon) => coupon.shippingDiscount !== null);
   }, [shippingCoupons]);
+
+  const addItem = () => {
+    setItems((prev) => [...prev, emptyItem()]);
+  };
+
+  const removeItem = (id: string) => {
+    setItems((prev) => prev.filter((item) => item.id !== id));
+  };
+
+  const updateItem = (id: string, patch: Partial<CartItemInput>) => {
+    setItems((prev) => prev.map((item) => (item.id === id ? { ...item, ...patch } : item)));
+  };
 
   const addPriceCoupon = () => {
     setPriceCoupons((prev) => [...prev, emptyPriceCoupon()]);
@@ -110,14 +187,19 @@ export const usePromoForm = () => {
   };
 
   return {
-    subtotal,
-    setSubtotal,
+    items,
+    setItems,
+    addItem,
+    removeItem,
+    updateItem,
+    subtotalValue,
     shippingFee,
     setShippingFee,
+    paymentMethod,
+    setPaymentMethod,
     priceCoupons,
     shippingCoupons,
-    subtotalValue,
-    shippingValue,
+    normalizedItems,
     normalizedPriceCoupons,
     normalizedShippingCoupons,
     addPriceCoupon,
@@ -129,4 +211,4 @@ export const usePromoForm = () => {
   } as const;
 };
 
-export type { PriceCouponInput, ShippingCouponInput, PriceCouponType };
+export type { CartItemInput, PriceCouponInput, ShippingCouponInput, PriceCouponType, PaymentMethod };
