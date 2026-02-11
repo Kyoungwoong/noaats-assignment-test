@@ -79,6 +79,14 @@
   margin-bottom: 16px;
 }
 
+.resultPolicy {
+  background: #fff8f0;
+  border: 1px solid rgba(140, 90, 30, 0.25);
+  border-radius: 14px;
+  padding: 14px 16px;
+  margin-bottom: 16px;
+}
+
 .sectionTitle {
   font-size: 20px;
   margin: 0;
