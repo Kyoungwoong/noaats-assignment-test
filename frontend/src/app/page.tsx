@@ -29,6 +29,7 @@ export default function Home() {
   const [selectedCompareIndexes, setSelectedCompareIndexes] = useState<number[]>([]);
   const [activeTab, setActiveTab] = useState<TabId>("CALC");
   const [authToken, setAuthToken] = useState<string | null>(null);
+  const [authView, setAuthView] = useState<"login" | "register">("login");
   const [authUsername, setAuthUsername] = useState("");
   const [authPassword, setAuthPassword] = useState("");
   const [authMessage, setAuthMessage] = useState<string | null>(null);
@@ -208,10 +209,29 @@ export default function Home() {
           <button
             type="button"
             className={styles.navButtonGhost}
-            onClick={() => (authToken ? handleLogout() : setActiveTab("MY"))}
+            onClick={() => {
+              if (authToken) {
+                handleLogout();
+                return;
+              }
+              setAuthView("login");
+              setActiveTab("MY");
+            }}
           >
             {authToken ? "로그아웃" : "로그인"}
           </button>
+          {!authToken && (
+            <button
+              type="button"
+              className={styles.navButtonGhost}
+              onClick={() => {
+                setAuthView("register");
+                setActiveTab("MY");
+              }}
+            >
+              회원가입
+            </button>
+          )}
           <button type="button" className={styles.navButton} onClick={() => setActiveTab("MY")}>
             마이페이지
           </button>
@@ -833,6 +853,9 @@ export default function Home() {
             </div>
             {!authToken ? (
               <div className={styles.authPanel}>
+                <p className={styles.label}>
+                  {authView === "register" ? "회원가입 페이지" : "로그인 페이지"}
+                </p>
                 <label className={styles.field}>
                   <span>아이디</span>
                   <input value={authUsername} onChange={(event) => setAuthUsername(event.target.value)} />
@@ -846,12 +869,37 @@ export default function Home() {
                   />
                 </label>
                 <div className={styles.row}>
-                  <button type="button" className={styles.primaryButton} onClick={() => handleLogin("login")}>
-                    로그인
-                  </button>
-                  <button type="button" className={styles.ghostButton} onClick={() => handleLogin("register")}>
-                    회원가입
-                  </button>
+                  {authView === "register" ? (
+                    <>
+                      <button
+                        type="button"
+                        className={styles.primaryButton}
+                        onClick={() => handleLogin("register")}
+                      >
+                        회원가입
+                      </button>
+                      <button
+                        type="button"
+                        className={styles.ghostButton}
+                        onClick={() => setAuthView("login")}
+                      >
+                        로그인으로
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <button type="button" className={styles.primaryButton} onClick={() => handleLogin("login")}>
+                        로그인
+                      </button>
+                      <button
+                        type="button"
+                        className={styles.ghostButton}
+                        onClick={() => setAuthView("register")}
+                      >
+                        회원가입으로
+                      </button>
+                    </>
+                  )}
                 </div>
                 {authMessage && <p className={styles.valueSmall}>{authMessage}</p>}
               </div>
