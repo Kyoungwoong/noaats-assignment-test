@@ -1,14 +1,13 @@
 package com.noaats.backend.controller;
 
-import java.util.List;
-
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.noaats.backend.promo.PriceCoupon;
-import com.noaats.backend.promo.PromoCombinationResult;
-import com.noaats.backend.promo.ShippingCoupon;
+import com.noaats.backend.dto.promo.PromoDtoMapper;
+import com.noaats.backend.dto.promo.PromoRequestDto;
+import com.noaats.backend.dto.promo.PromoResponseDto;
 import com.noaats.backend.service.PromoService;
 
 @RestController
@@ -20,22 +19,13 @@ public class PromoController {
 	}
 
 	@PostMapping("/api/promo/calculate")
-	public PromoResponse calculate(@RequestBody PromoRequest request) {
-		List<PromoCombinationResult> top3 = promoService.recommendTop3(
-			request.subtotal(),
-			request.shippingFee(),
-			request.priceCoupons(),
-			request.shippingCoupons()
-		);
-		return new PromoResponse(top3);
+	public PromoResponseDto calculate(@Valid @RequestBody PromoRequestDto request) {
+		PromoDtoMapper.PromoRequest domainRequest = PromoDtoMapper.toDomainRequest(request);
+		return PromoDtoMapper.toResponse(promoService.recommendTop3(
+			domainRequest.subtotal(),
+			domainRequest.shippingFee(),
+			domainRequest.priceCoupons(),
+			domainRequest.shippingCoupons()
+		));
 	}
-
-	public record PromoRequest(
-		long subtotal,
-		long shippingFee,
-		List<PriceCoupon> priceCoupons,
-		List<ShippingCoupon> shippingCoupons
-	) {}
-
-	public record PromoResponse(List<PromoCombinationResult> top3) {}
 }
