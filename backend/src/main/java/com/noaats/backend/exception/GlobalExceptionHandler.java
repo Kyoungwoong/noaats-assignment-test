@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
@@ -126,6 +127,18 @@ public class GlobalExceptionHandler {
 			request.getRequestURI()
 		);
 		return ResponseEntity.status(ex.errorCode().status()).body(body);
+	}
+
+	@ExceptionHandler(AccessDeniedException.class)
+	public ResponseEntity<ApiErrorResponse> handleAccessDenied(AccessDeniedException ex,
+			HttpServletRequest request) {
+		ApiErrorResponse body = ApiErrorResponse.from(
+			ErrorCode.FORBIDDEN,
+			ErrorCode.FORBIDDEN.defaultMessage(),
+			List.of(),
+			request.getRequestURI()
+		);
+		return ResponseEntity.status(ErrorCode.FORBIDDEN.status()).body(body);
 	}
 
 	@ExceptionHandler(Exception.class)
