@@ -28,3 +28,6 @@ plan.md
 
 # Log files
 backend/logs/
+
+# Local database files
+backend/data/

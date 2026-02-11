@@ -18,14 +18,21 @@ import com.noaats.backend.dto.promo.PromoDtoMapper;
 import com.noaats.backend.dto.promo.PromoRequestDto;
 import com.noaats.backend.dto.promo.PromoResponseDto;
 import com.noaats.backend.service.PromoService;
+import com.noaats.backend.history.HistoryService;
+import com.noaats.backend.auth.UserPrincipal;
+
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 @RestController
 @Tag(name = "Promo", description = "Promo calculation endpoints")
 public class PromoController {
 	private final PromoService promoService;
+	private final HistoryService historyService;
 
-	public PromoController(PromoService promoService) {
+	public PromoController(PromoService promoService, HistoryService historyService) {
 		this.promoService = promoService;
+		this.historyService = historyService;
 	}
 
 	@PostMapping("/api/promo/calculate")
@@ -46,6 +53,18 @@ public class PromoController {
 	public ApiEnvelope<PromoResponseDto> calculate(@Valid @RequestBody PromoRequestDto request) {
 		PromoDtoMapper.PromoRequest domainRequest = PromoDtoMapper.toDomainRequest(request);
 		PromoResponseDto response = PromoDtoMapper.toResponse(promoService.recommendTop3(domainRequest));
+		Long userId = getUserIdOrNull();
+		if (userId != null) {
+			historyService.saveHistory(userId, request, response);
+		}
 		return ApiEnvelope.ok(response);
+	}
+
+	private Long getUserIdOrNull() {
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		if (auth != null && auth.getPrincipal() instanceof UserPrincipal principal) {
+			return principal.id();
+		}
+		return null;
 	}
 }
