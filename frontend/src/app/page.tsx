@@ -431,6 +431,15 @@ export default function Home() {
               {loading ? "계산 중..." : "계산하기"}
             </button>
           </div>
+          <div className={styles.resultPolicy}>
+            <ul className={styles.policyList}>
+              <li>적용 순서: 가격 쿠폰 → 배송 쿠폰</li>
+              <li>minSpend 기준: 상품 정가 합계</li>
+              <li>반올림: 원 단위 버림</li>
+              <li>클램프: min(raw, base, cap)</li>
+              <li>중복 규칙: 가격 1장 + 배송 1장</li>
+            </ul>
+          </div>
           {error && <div className={styles.error}>Error: {error}</div>}
           {!error && results.length === 0 && (
             <p className={styles.empty}>쿠폰 정보를 입력하고 계산을 실행하세요.</p>
