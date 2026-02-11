@@ -1,6 +1,7 @@
 import type { PromoRequest, PromoResponse } from "../types/promoApi";
+import { API_BASE } from "./apiBase";
 
-const API_URL = "http://localhost:8080/api/promo/calculate";
+const API_URL = `${API_BASE}/promo/calculate`;
 
 type ApiEnvelope<T> = {
   success: boolean;
@@ -8,12 +9,16 @@ type ApiEnvelope<T> = {
   meta?: Record<string, unknown>;
 };
 
-export const calculatePromo = async (input: PromoRequest): Promise<PromoResponse> => {
+export const calculatePromo = async (input: PromoRequest, token?: string | null): Promise<PromoResponse> => {
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+  };
+  if (token) {
+    headers.Authorization = `Bearer ${token}`;
+  }
   const res = await fetch(API_URL, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
+    headers,
     body: JSON.stringify(input),
   });
 

@@ -1,14 +1,17 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import styles from "./page.module.css";
 import { calculatePromo, API_URL } from "./lib/promoApi";
 import { calculateEv } from "./lib/evApi";
+import { loginUser, registerUser } from "./lib/authApi";
+import { fetchHistoryDetail, fetchHistoryList } from "./lib/historyApi";
 import { formatCurrency, formatPriceCoupon } from "./lib/format";
 import { usePromoForm } from "./hooks/usePromoForm";
 import type { PromoCombinationResult, PromoResponse } from "./types/promoApi";
 import type { EvRequest, EvResponse, EvScenario } from "./types/evApi";
 import type { PaymentMethod } from "./types/promoCommon";
+import type { HistoryDetail, HistorySummary } from "./lib/historyApi";
 
 const PAYMENT_METHODS: PaymentMethod[] = ["CARD", "BANK", "KAKAO"];
 const EV_REWARD_TYPES = ["CASH", "POINT", "PERCENT"] as const;
@@ -17,7 +20,7 @@ const TABS = [
   { id: "EV", label: "EV·포인트" },
   { id: "POLICY", label: "정책" },
 ] as const;
-type TabId = (typeof TABS)[number]["id"];
+type TabId = (typeof TABS)[number]["id"] | "MY";
 
 export default function Home() {
   const [loading, setLoading] = useState(false);
@@ -25,6 +28,12 @@ export default function Home() {
   const [results, setResults] = useState<PromoCombinationResult[]>([]);
   const [selectedCompareIndexes, setSelectedCompareIndexes] = useState<number[]>([]);
   const [activeTab, setActiveTab] = useState<TabId>("CALC");
+  const [authToken, setAuthToken] = useState<string | null>(null);
+  const [authUsername, setAuthUsername] = useState("");
+  const [authPassword, setAuthPassword] = useState("");
+  const [authMessage, setAuthMessage] = useState<string | null>(null);
+  const [historyList, setHistoryList] = useState<HistorySummary[]>([]);
+  const [selectedHistory, setSelectedHistory] = useState<HistoryDetail | null>(null);
   const [evBaseAmount, setEvBaseAmount] = useState("59000");
   const [evScenarios, setEvScenarios] = useState<EvScenario[]>([
     { label: "당첨 5%", probability: 0.05, rewardType: "POINT", rewardValue: 1000 },
@@ -55,6 +64,21 @@ export default function Home() {
     updateShippingCoupon,
   } = usePromoForm();
 
+  useEffect(() => {
+    const stored = window.localStorage.getItem("noaats_token");
+    if (stored) {
+      setAuthToken(stored);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (activeTab === "MY" && authToken) {
+      fetchHistoryList(authToken)
+        .then(setHistoryList)
+        .catch(() => setHistoryList([]));
+    }
+  }, [activeTab, authToken]);
+
   const handleCalculate = async () => {
     setLoading(true);
     setError(null);
@@ -66,7 +90,7 @@ export default function Home() {
         paymentMethod,
         priceCoupons: normalizedPriceCoupons,
         shippingCoupons: normalizedShippingCoupons,
-      })) as PromoResponse;
+      }, authToken)) as PromoResponse;
       setSelectedCompareIndexes([]);
       setResults(json.top3 ?? []);
     } catch (err) {
@@ -125,6 +149,41 @@ export default function Home() {
     .filter(Boolean);
   const bestResult = results[0] ?? null;
 
+  const handleLogin = async (mode: "login" | "register") => {
+    setAuthMessage(null);
+    try {
+      const result =
+        mode === "register"
+          ? await registerUser(authUsername, authPassword)
+          : await loginUser(authUsername, authPassword);
+      setAuthToken(result.accessToken);
+      window.localStorage.setItem("noaats_token", result.accessToken);
+      setAuthMessage(mode === "register" ? "회원가입 완료" : "로그인 완료");
+      setActiveTab("MY");
+    } catch (err) {
+      setAuthMessage(err instanceof Error ? err.message : "로그인 실패");
+    }
+  };
+
+  const handleLogout = () => {
+    window.localStorage.removeItem("noaats_token");
+    setAuthToken(null);
+    setHistoryList([]);
+    setSelectedHistory(null);
+  };
+
+  const handleSelectHistory = async (item: HistorySummary) => {
+    if (!authToken) {
+      return;
+    }
+    try {
+      const detail = await fetchHistoryDetail(authToken, item.id);
+      setSelectedHistory(detail);
+    } catch {
+      setSelectedHistory(null);
+    }
+  };
+
   return (
     <div className={styles.page}>
       <header className={styles.navBar}>
@@ -146,10 +205,14 @@ export default function Home() {
           ))}
         </nav>
         <div className={styles.navActions}>
-          <button type="button" className={styles.navButtonGhost}>
-            로그인
+          <button
+            type="button"
+            className={styles.navButtonGhost}
+            onClick={() => (authToken ? handleLogout() : setActiveTab("MY"))}
+          >
+            {authToken ? "로그아웃" : "로그인"}
           </button>
-          <button type="button" className={styles.navButton}>
+          <button type="button" className={styles.navButton} onClick={() => setActiveTab("MY")}>
             마이페이지
           </button>
         </div>
@@ -756,6 +819,76 @@ export default function Home() {
             </div>
           )}
         </section>
+        )}
+
+        {activeTab === "MY" && (
+          <section className={styles.panel}>
+            <div className={styles.sectionHeader}>
+              <h2 className={styles.sectionTitle}>마이페이지</h2>
+              {authToken && (
+                <button type="button" className={styles.ghostButton} onClick={handleLogout}>
+                  로그아웃
+                </button>
+              )}
+            </div>
+            {!authToken ? (
+              <div className={styles.authPanel}>
+                <label className={styles.field}>
+                  <span>아이디</span>
+                  <input value={authUsername} onChange={(event) => setAuthUsername(event.target.value)} />
+                </label>
+                <label className={styles.field}>
+                  <span>비밀번호</span>
+                  <input
+                    type="password"
+                    value={authPassword}
+                    onChange={(event) => setAuthPassword(event.target.value)}
+                  />
+                </label>
+                <div className={styles.row}>
+                  <button type="button" className={styles.primaryButton} onClick={() => handleLogin("login")}>
+                    로그인
+                  </button>
+                  <button type="button" className={styles.ghostButton} onClick={() => handleLogin("register")}>
+                    회원가입
+                  </button>
+                </div>
+                {authMessage && <p className={styles.valueSmall}>{authMessage}</p>}
+              </div>
+            ) : (
+              <div className={styles.historyGrid}>
+                <div className={styles.historyList}>
+                  {historyList.length === 0 && <p className={styles.empty}>히스토리가 없습니다.</p>}
+                  {historyList.map((item) => (
+                    <button
+                      type="button"
+                      key={item.id}
+                      className={styles.historyCard}
+                      onClick={() => handleSelectHistory(item)}
+                    >
+                      <span className={styles.rank}>#{item.id}</span>
+                      <strong>{item.finalAmount.toLocaleString()}원</strong>
+                      <span className={styles.valueSmall}>
+                        할인 {item.totalDiscount.toLocaleString()}원 · 배송 {item.shippingFee.toLocaleString()}원
+                      </span>
+                    </button>
+                  ))}
+                </div>
+                <div className={styles.historyDetail}>
+                  {selectedHistory ? (
+                    <>
+                      <h3 className={styles.compareTitle}>히스토리 상세</h3>
+                      <pre className={styles.historyJson}>
+                        {JSON.stringify(selectedHistory.request, null, 2)}
+                      </pre>
+                    </>
+                  ) : (
+                    <p className={styles.empty}>상세를 선택하세요.</p>
+                  )}
+                </div>
+              </div>
+            )}
+          </section>
         )}
       </main>
 

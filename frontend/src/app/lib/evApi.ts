@@ -1,6 +1,7 @@
 import type { EvRequest, EvResponse } from "../types/evApi";
+import { API_BASE } from "./apiBase";
 
-const API_URL = "http://localhost:8080/api/ev/calculate";
+const API_URL = `${API_BASE}/ev/calculate`;
 
 type ApiEnvelope<T> = {
   success: boolean;

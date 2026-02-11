@@ -312,6 +312,51 @@
   color: var(--ink);
 }
 
+.authPanel {
+  display: grid;
+  gap: 12px;
+  max-width: 420px;
+}
+
+.historyGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
+  gap: 16px;
+}
+
+.historyList {
+  display: grid;
+  gap: 12px;
+}
+
+.historyCard {
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 12px 14px;
+  background: #fff;
+  text-align: left;
+  display: grid;
+  gap: 6px;
+  cursor: pointer;
+}
+
+.historyDetail {
+  border: 1px dashed var(--border);
+  border-radius: 16px;
+  padding: 16px;
+  background: #fffdf8;
+  min-height: 220px;
+}
+
+.historyJson {
+  font-family: var(--font-plex-mono), "IBM Plex Mono", monospace;
+  font-size: 12px;
+  white-space: pre-wrap;
+  word-break: break-word;
+  margin: 0;
+  color: var(--muted);
+}
+
 .fieldSmall {
   display: grid;
   gap: 6px;
@@ -486,6 +531,10 @@
   }
 
   .dashboardGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .historyGrid {
     grid-template-columns: 1fr;
   }
 
