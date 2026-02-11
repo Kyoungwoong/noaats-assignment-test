@@ -33,7 +33,7 @@ public final class PromoCalculator {
 		combinations.sort(Comparator
 			.comparingLong(PromoCombination::finalAmount)
 			.thenComparing(Comparator.comparingLong(PromoCombination::totalDiscount).reversed())
-			.thenComparing(Comparator.comparingDouble(PromoCombination::discountRate).reversed())
+			.thenComparing(Comparator.comparingDouble(PromoCombination::discountRateByTotal).reversed())
 			.thenComparingInt(PromoCombination::orderIndex)
 		);
 
@@ -49,7 +49,9 @@ public final class PromoCalculator {
 				combo.shippingResult(),
 				combo.totalDiscount(),
 				combo.finalAmount(),
-				reason
+				reason,
+				combo.discountRateBySubtotal(),
+				combo.discountRateByTotal()
 			));
 		}
 		return Collections.unmodifiableList(results);
@@ -88,8 +90,10 @@ public final class PromoCalculator {
 
 				long totalDiscount = priceResult.discount() + shippingResult.discount();
 				long finalAmount = (subtotal + shippingFee) - totalDiscount;
-				double baseAmount = subtotal + shippingFee;
-				double rate = baseAmount > 0 ? (double) totalDiscount / baseAmount : 0.0;
+				double subtotalBase = subtotal > 0 ? subtotal : 0.0;
+				double totalBase = (subtotal + shippingFee) > 0 ? (subtotal + shippingFee) : 0.0;
+				double rateBySubtotal = subtotalBase > 0 ? (double) totalDiscount / subtotalBase : 0.0;
+				double rateByTotal = totalBase > 0 ? (double) totalDiscount / totalBase : 0.0;
 				combinations.add(new PromoCombination(
 					priceCoupon,
 					shippingCoupon,
@@ -97,7 +101,8 @@ public final class PromoCalculator {
 					shippingResult,
 					totalDiscount,
 					finalAmount,
-					rate,
+					rateBySubtotal,
+					rateByTotal,
 					index++
 				));
 			}
@@ -113,7 +118,8 @@ public final class PromoCalculator {
 		ShippingDiscountResult shippingResult,
 		long totalDiscount,
 		long finalAmount,
-		double discountRate,
+		double discountRateBySubtotal,
+		double discountRateByTotal,
 		int orderIndex
 	) {}
 }

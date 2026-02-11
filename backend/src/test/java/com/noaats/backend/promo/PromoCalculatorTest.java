@@ -48,6 +48,9 @@ class PromoCalculatorTest {
 		assertEquals("총할인액 우선", second.reason());
 		assertEquals("할인율 우선", third.reason());
 
+		assertEquals(0.45, first.discountRateBySubtotal(), 0.0001);
+		assertEquals(0.3461, first.discountRateByTotal(), 0.0001);
+
 		assertNotNull(first.priceCoupon());
 		assertNotNull(first.shippingCoupon());
 	}
