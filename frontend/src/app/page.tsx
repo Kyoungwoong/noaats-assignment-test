@@ -471,6 +471,14 @@ export default function Home() {
                       {result.priceCoupon ? formatPriceCoupon(result.priceCoupon) : "미사용"}
                     </p>
                   </div>
+                  {result.priceResult.reason === "MIN_SPEND_NOT_MET" && result.priceResult.shortfallAmount > 0 && (
+                    <div>
+                      <p className={styles.label}>부족 금액</p>
+                      <p className={styles.valueSmall}>
+                        {formatCurrency(result.priceResult.shortfallAmount)}
+                      </p>
+                    </div>
+                  )}
                   <div>
                     <p className={styles.label}>배송쿠폰</p>
                     <p className={styles.valueSmall}>
