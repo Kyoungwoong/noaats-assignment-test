@@ -4,5 +4,6 @@ public record PriceDiscountResult(
 	boolean applied,
 	long discount,
 	long finalAmount,
-	String reason
+	String reason,
+	long shortfallAmount
 ) {}

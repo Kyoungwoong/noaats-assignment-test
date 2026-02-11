@@ -10,5 +10,7 @@ public record PriceDiscountResultDto(
 	@Schema(description = "Final amount after price coupon and shipping fee", example = "54000")
 	long finalAmount,
 	@Schema(description = "Reason code when not applied", example = "MIN_SPEND_NOT_MET")
-	String reason
+	String reason,
+	@Schema(description = "Shortfall amount to meet minSpend", example = "2000")
+	long shortfallAmount
 ) {}
