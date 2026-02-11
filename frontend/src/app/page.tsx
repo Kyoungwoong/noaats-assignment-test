@@ -2,63 +2,15 @@
 
 import { useMemo, useState } from "react";
 import styles from "./page.module.css";
-
-type PriceCouponType = "PERCENT" | "FIXED";
-
-type PriceCouponInput = {
-  id: string;
-  type: PriceCouponType;
-  ratePercent: string;
-  amount: string;
-  minSpend: string;
-  cap: string;
-};
-
-type ShippingCouponInput = {
-  id: string;
-  shippingDiscount: string;
-  cap: string;
-};
-
-type PriceCoupon = {
-  type: PriceCouponType;
-  ratePercent?: number | null;
-  amount?: number | null;
-  minSpend?: number | null;
-  cap?: number | null;
-};
-
-type ShippingCoupon = {
-  shippingDiscount?: number | null;
-  cap?: number | null;
-};
-
-type PriceDiscountResult = {
-  applied: boolean;
-  discount: number;
-  finalAmount: number;
-  reason: string | null;
-};
-
-type ShippingDiscountResult = {
-  applied: boolean;
-  discount: number;
-  remainingShippingFee: number;
-  reason: string | null;
-};
-
-type PromoCombinationResult = {
-  priceCoupon: PriceCoupon | null;
-  shippingCoupon: ShippingCoupon | null;
-  priceResult: PriceDiscountResult;
-  shippingResult: ShippingDiscountResult;
-  totalDiscount: number;
-  finalAmount: number;
-};
-
-type PromoResponse = {
-  top3: PromoCombinationResult[];
-};
+import type {
+  PriceCoupon,
+  PriceCouponInput,
+  PriceCouponType,
+  PromoCombinationResult,
+  PromoResponse,
+  ShippingCoupon,
+  ShippingCouponInput,
+} from "./types/promo";
 
 const API_URL = "http://localhost:8080/api/promo/calculate";
 
