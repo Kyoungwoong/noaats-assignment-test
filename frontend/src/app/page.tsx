@@ -12,12 +12,19 @@ import type { PaymentMethod } from "./types/promoCommon";
 
 const PAYMENT_METHODS: PaymentMethod[] = ["CARD", "BANK", "KAKAO"];
 const EV_REWARD_TYPES = ["CASH", "POINT", "PERCENT"] as const;
+const TABS = [
+  { id: "CALC", label: "계산" },
+  { id: "EV", label: "EV·포인트" },
+  { id: "POLICY", label: "정책" },
+] as const;
+type TabId = (typeof TABS)[number]["id"];
 
 export default function Home() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [results, setResults] = useState<PromoCombinationResult[]>([]);
   const [selectedCompareIndexes, setSelectedCompareIndexes] = useState<number[]>([]);
+  const [activeTab, setActiveTab] = useState<TabId>("CALC");
   const [evBaseAmount, setEvBaseAmount] = useState("59000");
   const [evScenarios, setEvScenarios] = useState<EvScenario[]>([
     { label: "당첨 5%", probability: 0.05, rewardType: "POINT", rewardValue: 1000 },
@@ -127,19 +134,37 @@ export default function Home() {
             가격쿠폰과 배송쿠폰을 기준 정책으로 계산하고, 결제액 최소 Top3 조합을 추천합니다.
           </p>
         </div>
-        <div className={styles.heroCard}>
-          <h2 className={styles.sectionTitle}>고정 정책</h2>
-          <ul className={styles.policyList}>
-            <li>적용 순서: 가격 쿠폰 → 배송 쿠폰</li>
-            <li>minSpend 기준: 상품 정가 합계</li>
-            <li>반올림: 원 단위 버림</li>
-            <li>클램프: min(raw, base, cap)</li>
-            <li>중복 규칙: 가격 1장 + 배송 1장</li>
-          </ul>
-        </div>
       </header>
 
       <main className={styles.main}>
+        <nav className={styles.tabBar}>
+          {TABS.map((tab) => (
+            <button
+              key={tab.id}
+              type="button"
+              className={`${styles.tabButton} ${activeTab === tab.id ? styles.tabButtonActive : ""}`}
+              onClick={() => setActiveTab(tab.id)}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </nav>
+        {activeTab === "POLICY" && (
+          <section className={styles.panel}>
+            <div className={styles.sectionHeader}>
+              <h2 className={styles.sectionTitle}>정책 요약</h2>
+            </div>
+            <ul className={styles.policyList}>
+              <li>적용 순서: 가격 쿠폰 → 배송 쿠폰</li>
+              <li>minSpend 기준: 상품 정가 합계</li>
+              <li>반올림: 원 단위 버림</li>
+              <li>클램프: min(raw, base, cap)</li>
+              <li>중복 규칙: 가격 1장 + 배송 1장</li>
+            </ul>
+          </section>
+        )}
+        {activeTab === "CALC" && (
+          <>
         <section className={styles.panel}>
           <div className={styles.sectionHeader}>
             <h2 className={styles.sectionTitle}>장바구니 아이템</h2>
@@ -580,102 +605,106 @@ export default function Home() {
             )}
           </div>
         </section>
+          </>
+        )}
 
-        <section className={styles.panel}>
-          <div className={styles.sectionHeader}>
-            <h2 className={styles.sectionTitle}>확률형 EV 계산</h2>
-            <button type="button" className={styles.primaryButton} onClick={handleEvCalculate}>
-              {loading ? "계산 중..." : "EV 계산하기"}
-            </button>
-          </div>
-          <div className={styles.row}>
-            <label className={styles.fieldSmall}>
-              <span>기준 금액</span>
-              <input
-                type="number"
-                min="0"
-                value={evBaseAmount}
-                onChange={(event) => setEvBaseAmount(event.target.value)}
-              />
-            </label>
-            <button type="button" className={styles.ghostButton} onClick={addEvScenario}>
-              + 시나리오 추가
-            </button>
-          </div>
-          <div className={styles.stack}>
-            {evScenarios.map((scenario, index) => (
-              <div key={`${scenario.label}-${index}`} className={styles.couponCard}>
-                <div className={styles.rowBetween}>
+        {activeTab === "EV" && (
+          <section className={styles.panel}>
+            <div className={styles.sectionHeader}>
+              <h2 className={styles.sectionTitle}>확률형 EV 계산</h2>
+              <button type="button" className={styles.primaryButton} onClick={handleEvCalculate}>
+                {loading ? "계산 중..." : "EV 계산하기"}
+              </button>
+            </div>
+            <div className={styles.row}>
+              <label className={styles.fieldSmall}>
+                <span>기준 금액</span>
+                <input
+                  type="number"
+                  min="0"
+                  value={evBaseAmount}
+                  onChange={(event) => setEvBaseAmount(event.target.value)}
+                />
+              </label>
+              <button type="button" className={styles.ghostButton} onClick={addEvScenario}>
+                + 시나리오 추가
+              </button>
+            </div>
+            <div className={styles.stack}>
+              {evScenarios.map((scenario, index) => (
+                <div key={`${scenario.label}-${index}`} className={styles.couponCard}>
+                  <div className={styles.rowBetween}>
+                    <div className={styles.row}>
+                      <label className={styles.fieldSmall}>
+                        <span>라벨</span>
+                        <input
+                          value={scenario.label}
+                          onChange={(event) => updateEvScenario(index, { label: event.target.value })}
+                        />
+                      </label>
+                      <label className={styles.fieldSmall}>
+                        <span>확률(0~1)</span>
+                        <input
+                          type="number"
+                          step="0.01"
+                          min="0"
+                          max="1"
+                          value={scenario.probability}
+                          onChange={(event) =>
+                            updateEvScenario(index, { probability: Number(event.target.value) || 0 })
+                          }
+                        />
+                      </label>
+                    </div>
+                    <button
+                      type="button"
+                      className={styles.removeButton}
+                      onClick={() => removeEvScenario(index)}
+                    >
+                      삭제
+                    </button>
+                  </div>
                   <div className={styles.row}>
                     <label className={styles.fieldSmall}>
-                      <span>라벨</span>
-                      <input
-                        value={scenario.label}
-                        onChange={(event) => updateEvScenario(index, { label: event.target.value })}
-                      />
+                      <span>보상 유형</span>
+                      <select
+                        value={scenario.rewardType}
+                        onChange={(event) =>
+                          updateEvScenario(index, { rewardType: event.target.value as EvScenario["rewardType"] })
+                        }
+                      >
+                        {EV_REWARD_TYPES.map((type) => (
+                          <option key={type} value={type}>
+                            {type}
+                          </option>
+                        ))}
+                      </select>
                     </label>
                     <label className={styles.fieldSmall}>
-                      <span>확률(0~1)</span>
+                      <span>보상 값</span>
                       <input
                         type="number"
-                        step="0.01"
                         min="0"
-                        max="1"
-                        value={scenario.probability}
+                        value={scenario.rewardValue}
                         onChange={(event) =>
-                          updateEvScenario(index, { probability: Number(event.target.value) || 0 })
+                          updateEvScenario(index, { rewardValue: Number(event.target.value) || 0 })
                         }
                       />
                     </label>
                   </div>
-                  <button
-                    type="button"
-                    className={styles.removeButton}
-                    onClick={() => removeEvScenario(index)}
-                  >
-                    삭제
-                  </button>
                 </div>
-                <div className={styles.row}>
-                  <label className={styles.fieldSmall}>
-                    <span>보상 유형</span>
-                    <select
-                      value={scenario.rewardType}
-                      onChange={(event) =>
-                        updateEvScenario(index, { rewardType: event.target.value as EvScenario["rewardType"] })
-                      }
-                    >
-                      {EV_REWARD_TYPES.map((type) => (
-                        <option key={type} value={type}>
-                          {type}
-                        </option>
-                      ))}
-                    </select>
-                  </label>
-                  <label className={styles.fieldSmall}>
-                    <span>보상 값</span>
-                    <input
-                      type="number"
-                      min="0"
-                      value={scenario.rewardValue}
-                      onChange={(event) =>
-                        updateEvScenario(index, { rewardValue: Number(event.target.value) || 0 })
-                      }
-                    />
-                  </label>
-                </div>
-              </div>
-            ))}
-          </div>
-          {evResult && (
-            <div className={styles.card}>
-              <p className={styles.label}>기대값</p>
-              <p className={styles.value}>{evResult.expectedValue.toLocaleString()}원</p>
-              <p className={styles.label}>기대 할인율</p>
-              <p className={styles.valueSmall}>{(evResult.expectedDiscountRate * 100).toFixed(2)}%</p>
+              ))}
             </div>
-          )}
-        </section>
+            {evResult && (
+              <div className={styles.card}>
+                <p className={styles.label}>기대값</p>
+                <p className={styles.value}>{evResult.expectedValue.toLocaleString()}원</p>
+                <p className={styles.label}>기대 할인율</p>
+                <p className={styles.valueSmall}>{(evResult.expectedDiscountRate * 100).toFixed(2)}%</p>
+              </div>
+            )}
+          </section>
+        )}
       </main>
 
       <footer className={styles.footer}>

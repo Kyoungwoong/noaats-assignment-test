@@ -7,9 +7,8 @@
 
 .hero {
   max-width: 1100px;
-  margin: 0 auto 32px;
+  margin: 0 auto 24px;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
   gap: 24px;
   align-items: stretch;
 }
@@ -47,6 +46,39 @@
   border-radius: 20px;
   padding: 28px;
   box-shadow: 0 18px 45px rgba(90, 60, 20, 0.1);
+}
+
+.tabBar {
+  display: flex;
+  gap: 12px;
+  padding: 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid var(--border);
+  box-shadow: 0 12px 24px rgba(90, 60, 20, 0.08);
+}
+
+.tabButton {
+  border: 1px solid transparent;
+  background: transparent;
+  padding: 10px 16px;
+  border-radius: 999px;
+  font-weight: 600;
+  color: var(--muted);
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
+}
+
+.tabButton:hover {
+  transform: translateY(-1px);
+  background: rgba(140, 90, 30, 0.08);
+  color: var(--ink);
+}
+
+.tabButtonActive {
+  background: rgba(140, 90, 30, 0.16);
+  color: var(--ink);
+  border-color: rgba(140, 90, 30, 0.35);
 }
 
 .policyList {
