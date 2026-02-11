@@ -11,7 +11,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 class PromoCalculatorTest {
 
 	@Test
-	void recommends_top3_by_final_amount_then_discount_then_input_order() {
+	void recommends_top3_by_final_amount_discount_rate_and_reason() {
 		long subtotal = 10_000L;
 		long shippingFee = 3_000L;
 		List<CartItem> items = List.of(new CartItem("Item", 10_000L, 1, "SHOES"));
@@ -43,6 +43,10 @@ class PromoCalculatorTest {
 		assertEquals(8_500L, first.finalAmount());
 		assertEquals(9_000L, second.finalAmount());
 		assertEquals(10_000L, third.finalAmount());
+
+		assertEquals("결제액 최소", first.reason());
+		assertEquals("총할인액 우선", second.reason());
+		assertEquals("할인율 우선", third.reason());
 
 		assertNotNull(first.priceCoupon());
 		assertNotNull(first.shippingCoupon());

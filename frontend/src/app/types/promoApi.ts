@@ -58,6 +58,7 @@ export type PromoCombinationResult = {
   shippingResult: ShippingDiscountResult;
   totalDiscount: number;
   finalAmount: number;
+  reason: string;
 };
 
 export type PromoResponse = {

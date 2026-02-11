@@ -409,6 +409,10 @@ export default function Home() {
                     <p className={styles.value}>{result.totalDiscount.toLocaleString()}원</p>
                   </div>
                   <div>
+                    <p className={styles.label}>추천 사유</p>
+                    <p className={styles.valueSmall}>{result.reason}</p>
+                  </div>
+                  <div>
                     <p className={styles.label}>가격쿠폰</p>
                     <p className={styles.valueSmall}>
                       {result.priceCoupon ? formatPriceCoupon(result.priceCoupon) : "미사용"}
