@@ -136,7 +136,8 @@ public final class PromoDtoMapper {
 			result.applied(),
 			result.discount(),
 			result.finalAmount(),
-			result.reason()
+			result.reason(),
+			result.shortfallAmount()
 		);
 	}
 

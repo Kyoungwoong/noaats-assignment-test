@@ -80,7 +80,7 @@ public final class PromoCalculator {
 		int index = 0;
 		for (PriceCoupon priceCoupon : priceOptions) {
 			PriceDiscountResult priceResult = priceCoupon == null
-				? new PriceDiscountResult(false, 0L, subtotal + shippingFee, null)
+				? new PriceDiscountResult(false, 0L, subtotal + shippingFee, null, 0L)
 				: PriceCouponCalculator.calculate(subtotal, shippingFee, priceCoupon, context);
 
 			for (ShippingCoupon shippingCoupon : shippingOptions) {

@@ -42,6 +42,7 @@ export type PriceDiscountResult = {
   discount: number;
   finalAmount: number;
   reason: string | null;
+  shortfallAmount: number;
 };
 
 export type ShippingDiscountResult = {

@@ -58,7 +58,7 @@ class PriceCouponCalculatorTest {
 	}
 
 	@Test
-	void min_spend_not_met_returns_zero_discount() {
+	void min_spend_not_met_returns_zero_discount_and_shortfall() {
 		PriceCoupon coupon = new PriceCoupon(
 			PriceCouponType.FIXED,
 			null,
@@ -77,5 +77,6 @@ class PriceCouponCalculatorTest {
 		assertEquals(0L, result.discount());
 		assertEquals(31_000L, result.finalAmount());
 		assertEquals("MIN_SPEND_NOT_MET", result.reason());
+		assertEquals(2_000L, result.shortfallAmount());
 	}
 }

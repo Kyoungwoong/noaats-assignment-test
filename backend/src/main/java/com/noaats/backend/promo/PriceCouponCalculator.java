@@ -23,12 +23,13 @@ public final class PriceCouponCalculator {
 			context
 		);
 		if (conditionReason != null) {
-			return new PriceDiscountResult(false, 0L, subtotal + shippingFee, conditionReason.name());
+			return new PriceDiscountResult(false, 0L, subtotal + shippingFee, conditionReason.name(), 0L);
 		}
 
 		Long minSpend = coupon.minSpend();
 		if (minSpend != null && subtotal < minSpend) {
-			return new PriceDiscountResult(false, 0L, subtotal + shippingFee, "MIN_SPEND_NOT_MET");
+			long shortfall = Math.max(0L, minSpend - subtotal);
+			return new PriceDiscountResult(false, 0L, subtotal + shippingFee, "MIN_SPEND_NOT_MET", shortfall);
 		}
 
 		long raw = calculateRawDiscount(subtotal, coupon);
@@ -37,7 +38,7 @@ public final class PriceCouponCalculator {
 		long discount = Math.max(0L, clamped);
 		long finalAmount = (subtotal - discount) + shippingFee;
 
-		return new PriceDiscountResult(true, discount, finalAmount, null);
+		return new PriceDiscountResult(true, discount, finalAmount, null, 0L);
 	}
 
 	private static long calculateRawDiscount(long subtotal, PriceCoupon coupon) {
