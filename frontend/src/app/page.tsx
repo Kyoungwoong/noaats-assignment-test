@@ -138,6 +138,7 @@ export default function Home() {
               key={tab.id}
               type="button"
               className={`${styles.tabButton} ${activeTab === tab.id ? styles.tabButtonActive : ""}`}
+              aria-pressed={activeTab === tab.id}
               onClick={() => setActiveTab(tab.id)}
             >
               {tab.label}
