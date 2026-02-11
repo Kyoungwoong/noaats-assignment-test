@@ -10,7 +10,9 @@ import com.noaats.backend.dto.promo.PromoRequestDto;
 import com.noaats.backend.dto.promo.ShippingCouponDto;
 import com.noaats.backend.promo.PaymentMethod;
 import com.noaats.backend.promo.PriceCouponType;
+import com.noaats.backend.history.HistoryService;
 import com.noaats.backend.service.PromoService;
+import org.mockito.Mockito;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -19,7 +21,7 @@ class PromoControllerTest {
 
 	@Test
 	void wraps_success_response() {
-		PromoController controller = new PromoController(new PromoService());
+		PromoController controller = new PromoController(new PromoService(), Mockito.mock(HistoryService.class));
 		PromoRequestDto request = new PromoRequestDto(
 			10_000L,
 			List.of(new CartItemDto("Item", 10_000L, 1, "SHOES")),
