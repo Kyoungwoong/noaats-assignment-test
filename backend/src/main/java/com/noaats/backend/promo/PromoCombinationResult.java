@@ -6,5 +6,6 @@ public record PromoCombinationResult(
 	PriceDiscountResult priceResult,
 	ShippingDiscountResult shippingResult,
 	long totalDiscount,
-	long finalAmount
+	long finalAmount,
+	String reason
 ) {}

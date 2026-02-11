@@ -33,6 +33,7 @@ public final class PromoCalculator {
 		combinations.sort(Comparator
 			.comparingLong(PromoCombination::finalAmount)
 			.thenComparing(Comparator.comparingLong(PromoCombination::totalDiscount).reversed())
+			.thenComparing(Comparator.comparingDouble(PromoCombination::discountRate).reversed())
 			.thenComparingInt(PromoCombination::orderIndex)
 		);
 
@@ -40,13 +41,15 @@ public final class PromoCalculator {
 		List<PromoCombinationResult> results = new ArrayList<>(limit);
 		for (int i = 0; i < limit; i++) {
 			PromoCombination combo = combinations.get(i);
+			String reason = i == 0 ? "결제액 최소" : (i == 1 ? "총할인액 우선" : "할인율 우선");
 			results.add(new PromoCombinationResult(
 				combo.priceCoupon(),
 				combo.shippingCoupon(),
 				combo.priceResult(),
 				combo.shippingResult(),
 				combo.totalDiscount(),
-				combo.finalAmount()
+				combo.finalAmount(),
+				reason
 			));
 		}
 		return Collections.unmodifiableList(results);
@@ -85,6 +88,8 @@ public final class PromoCalculator {
 
 				long totalDiscount = priceResult.discount() + shippingResult.discount();
 				long finalAmount = (subtotal + shippingFee) - totalDiscount;
+				double baseAmount = subtotal + shippingFee;
+				double rate = baseAmount > 0 ? (double) totalDiscount / baseAmount : 0.0;
 				combinations.add(new PromoCombination(
 					priceCoupon,
 					shippingCoupon,
@@ -92,6 +97,7 @@ public final class PromoCalculator {
 					shippingResult,
 					totalDiscount,
 					finalAmount,
+					rate,
 					index++
 				));
 			}
@@ -107,6 +113,7 @@ public final class PromoCalculator {
 		ShippingDiscountResult shippingResult,
 		long totalDiscount,
 		long finalAmount,
+		double discountRate,
 		int orderIndex
 	) {}
 }

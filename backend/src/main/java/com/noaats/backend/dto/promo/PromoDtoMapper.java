@@ -99,7 +99,8 @@ public final class PromoDtoMapper {
 			priceResult,
 			shippingResult,
 			result.totalDiscount(),
-			result.finalAmount()
+			result.finalAmount(),
+			result.reason()
 		);
 	}
 

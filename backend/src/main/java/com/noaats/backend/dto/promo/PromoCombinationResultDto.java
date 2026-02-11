@@ -14,5 +14,7 @@ public record PromoCombinationResultDto(
 	@Schema(description = "Total discount amount", example = "10000")
 	long totalDiscount,
 	@Schema(description = "Final amount to pay", example = "54000")
-	long finalAmount
+	long finalAmount,
+	@Schema(description = "Recommendation reason", example = "결제액 최소")
+	String reason
 ) {}
