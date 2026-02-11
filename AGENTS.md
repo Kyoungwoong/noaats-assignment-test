@@ -65,6 +65,7 @@ Priority order:
 - MUST: Make **small, feature-scoped commits**. If a change can be split, it must be split.
 - MUST: Use commit message format `<type>(<scope>): <subject>` as defined in `git-workflow`.
 - MUST: Store AI prompt/response **raw, verbatim logs** under `prompts/` by feature.
+- MUST: Write `prompts/` logs **only once** right before PR creation, summarized per feature.
 - MUST: Use relevant skills before working, and follow their instructions.
 
 ---
