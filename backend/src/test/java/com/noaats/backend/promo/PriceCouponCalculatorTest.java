@@ -1,5 +1,8 @@
 package com.noaats.backend.promo;
 
+import java.time.Instant;
+import java.util.List;
+
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -8,6 +11,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class PriceCouponCalculatorTest {
 
+	private static PromoCalculationContext context() {
+		return new PromoCalculationContext(List.of("SHOES"), PaymentMethod.CARD, Instant.parse("2026-02-11T00:00:00Z"));
+	}
+
 	@Test
 	void s1_percent_coupon_applies_with_cap() {
 		PriceCoupon coupon = new PriceCoupon(
@@ -15,10 +22,14 @@ class PriceCouponCalculatorTest {
 			20,
 			null,
 			50_000L,
-			8_000L
+			8_000L,
+			null,
+			null,
+			null,
+			null
 		);
 
-		PriceDiscountResult result = PriceCouponCalculator.calculate(59_000L, 3_000L, coupon);
+		PriceDiscountResult result = PriceCouponCalculator.calculate(59_000L, 3_000L, coupon, context());
 
 		assertTrue(result.applied());
 		assertEquals(8_000L, result.discount());
@@ -32,10 +43,14 @@ class PriceCouponCalculatorTest {
 			null,
 			7_000L,
 			40_000L,
+			null,
+			null,
+			null,
+			null,
 			null
 		);
 
-		PriceDiscountResult result = PriceCouponCalculator.calculate(59_000L, 3_000L, coupon);
+		PriceDiscountResult result = PriceCouponCalculator.calculate(59_000L, 3_000L, coupon, context());
 
 		assertTrue(result.applied());
 		assertEquals(7_000L, result.discount());
@@ -49,10 +64,14 @@ class PriceCouponCalculatorTest {
 			null,
 			6_000L,
 			30_000L,
+			null,
+			null,
+			null,
+			null,
 			null
 		);
 
-		PriceDiscountResult result = PriceCouponCalculator.calculate(28_000L, 3_000L, coupon);
+		PriceDiscountResult result = PriceCouponCalculator.calculate(28_000L, 3_000L, coupon, context());
 
 		assertFalse(result.applied());
 		assertEquals(0L, result.discount());
