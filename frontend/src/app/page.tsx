@@ -2,15 +2,9 @@
 
 import { useMemo, useState } from "react";
 import styles from "./page.module.css";
-import type {
-  PriceCoupon,
-  PriceCouponInput,
-  PriceCouponType,
-  PromoCombinationResult,
-  PromoResponse,
-  ShippingCoupon,
-  ShippingCouponInput,
-} from "./types/promo";
+import type { PriceCoupon, PromoCombinationResult, PromoResponse, ShippingCoupon } from "./types/promoApi";
+import type { PriceCouponInput, ShippingCouponInput } from "./types/promoForm";
+import type { PriceCouponType } from "./types/promoCommon";
 
 const API_URL = "http://localhost:8080/api/promo/calculate";
 
