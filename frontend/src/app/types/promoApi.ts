@@ -59,6 +59,8 @@ export type PromoCombinationResult = {
   totalDiscount: number;
   finalAmount: number;
   reason: string;
+  discountRateBySubtotal: number;
+  discountRateByTotal: number;
 };
 
 export type PromoResponse = {
