@@ -3,6 +3,12 @@ import type { PriceCoupon, ShippingCoupon } from "../types/promoApi";
 
 const API_URL = "http://localhost:8080/api/promo/calculate";
 
+type ApiResponse<T> = {
+  success: boolean;
+  data: T;
+  meta?: Record<string, unknown>;
+};
+
 export const calculatePromo = async (input: {
   subtotal: number;
   shippingFee: number;
@@ -21,7 +27,8 @@ export const calculatePromo = async (input: {
     throw new Error(`HTTP ${res.status}`);
   }
 
-  return (await res.json()) as PromoResponse;
+  const json = (await res.json()) as ApiResponse<PromoResponse>;
+  return json.data;
 };
 
 export { API_URL };
