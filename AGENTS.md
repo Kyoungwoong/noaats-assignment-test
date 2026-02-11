@@ -61,7 +61,7 @@ Priority order:
 
 ### 3.4 Git Workflow and Prompt Logging
 - MUST: Follow the `git-workflow` skill for Issue → Branch → Commit → Push → PR.
-- MUST: Create an Issue first, then create a branch named `musinsa/<type>/<issue-number>-<short-description>` from `main`.
+- MUST: Create an Issue first, then create a branch named `noaats/<type>/<issue-number>-<short-description>` from `main`.
 - MUST: Make **small, feature-scoped commits**. If a change can be split, it must be split.
 - MUST: Use commit message format `<type>(<scope>): <subject>` as defined in `git-workflow`.
 - MUST: Store AI prompt/response summaries under `prompts/` by feature.
