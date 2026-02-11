@@ -233,6 +233,16 @@
   margin-top: 8px;
 }
 
+.card {
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  padding: 16px;
+  background: #fff;
+  margin-top: 12px;
+  display: grid;
+  gap: 6px;
+}
+
 .empty {
   color: var(--muted);
   margin: 12px 0 0;
