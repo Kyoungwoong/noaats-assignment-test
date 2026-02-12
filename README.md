@@ -1,12 +1,66 @@
 # NoahATS Pre-Task: Promo Value Calculator (MVP)
 
-## How to Run (Backend Tests)
+이 프로젝트는 **복합 할인 정책(적용 순서/최소금액/상한/중복)** 때문에 발생하는
+“실질 결제액 판단의 어려움”을 해결하기 위한 계산기 MVP다.
+
+---
+
+## 문서 안내
+- 문제 정의/기획: `Problem.md`
+- 테스트 시나리오: `TESTCASES.md`
+- 개선 과정/프롬프트 로그 링크: `PROCESS.md`
+- AI 활용 기록: `AI_COLLABORATION.md`
+- 에이전트 규칙: `AGENTS.md` / `.agents/skills/*/SKILL.md`
+
+---
+
+## 실행 방법
+
+### Backend
 ```bash
 cd backend
 ./gradlew test
 ```
 
-## Policies / Assumptions (MVP)
+### Frontend
+```bash
+cd frontend
+pnpm install
+pnpm dev
+```
+
+## 환경 요구사항
+- JDK 17+
+- Node.js 18+
+- pnpm 9+
+
+---
+
+## Swagger (OpenAPI)
+백엔드 실행 후 브라우저에서 확인한다.
+- 기본 경로: `/swagger-ui/index.html`
+
+---
+
+## JaCoCo 커버리지 리포트 확인
+```bash
+cd backend
+./gradlew test jacocoTestReport
+```
+리포트 경로: `backend/build/reports/jacoco/test/html/index.html`
+
+---
+
+## API 요약
+- `POST /api/promo/calculate`: 쿠폰 조합 계산
+- `POST /api/ev/calculate`: EV 계산
+- `POST /api/auth/signup`: 회원가입
+- `POST /api/auth/login`: 로그인
+- `GET /api/history`: 계산 히스토리 조회
+
+---
+
+## 정책/가정 (MVP 고정)
 - Apply order: 가격 쿠폰 -> 배송 쿠폰
 - minSpend base: 상품 정가 합계(배송비 제외)
 - Rounding: 원 단위 버림(floor)
@@ -14,7 +68,9 @@ cd backend
 - cap 미설정: 무제한(∞)
 - Stack rules: 가격쿠폰 1장 + 배송쿠폰 1장
 
-## Sample Scenarios (Expected Outputs)
+---
+
+## 샘플 시나리오 (Expected Outputs)
 ### S1: %쿠폰 vs 정액쿠폰 비교
 - Input:
   - subtotal=59,000, shipping=3,000
@@ -38,7 +94,18 @@ cd backend
 - Expected:
   - applied=false, discount=0, final=31,000, reason=MIN_SPEND_NOT_MET
 
-## Project Notes
-- 계산 엔진은 `backend/src/main/java/com/noaats/backend/promo` 아래에 있다.
-- 테스트는 `backend/src/test/java/com/noaats/backend/promo`에 있다.
-- 프론트 UI는 `frontend/src/app/page.tsx`에서 API(`POST /api/promo/calculate`)를 호출한다.
+---
+
+## 구조 메모
+- 계산 엔진: `backend/src/main/java/com/noaats/backend/promo`
+- API 컨트롤러: `backend/src/main/java/com/noaats/backend/controller`
+- 테스트: `backend/src/test/java/com/noaats/backend`
+- 프론트 UI: `frontend/src/app/page.tsx`
+
+---
+
+## AGENTS / Skills / Rules
+- 전역 규칙: `AGENTS.md`
+- 프로젝트 스킬: `.agents/skills/*/SKILL.md`
+- 운영 규칙: `codex-operations` 스킬
+- Git 워크플로우: `git-workflow` 스킬
