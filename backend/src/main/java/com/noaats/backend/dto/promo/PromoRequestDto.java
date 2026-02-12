@@ -20,8 +20,8 @@ public record PromoRequestDto(
 	@PositiveOrZero long shippingFee,
 	@Schema(description = "Payment method", example = "CARD")
 	@NotNull PaymentMethod paymentMethod,
-	@ArraySchema(schema = @Schema(implementation = PriceCouponDto.class), minItems = 1)
-	@Valid @NotNull @NotEmpty List<PriceCouponDto> priceCoupons,
-	@ArraySchema(schema = @Schema(implementation = ShippingCouponDto.class), minItems = 1)
-	@Valid @NotNull @NotEmpty List<ShippingCouponDto> shippingCoupons
+	@ArraySchema(schema = @Schema(implementation = PriceCouponDto.class), minItems = 0)
+	@Valid @NotNull List<PriceCouponDto> priceCoupons,
+	@ArraySchema(schema = @Schema(implementation = ShippingCouponDto.class), minItems = 0)
+	@Valid @NotNull List<ShippingCouponDto> shippingCoupons
 ) {}
