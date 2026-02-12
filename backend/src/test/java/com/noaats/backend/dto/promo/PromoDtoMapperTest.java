@@ -80,4 +80,22 @@ class PromoDtoMapperTest {
 		assertNull(response.top3().getFirst().priceCoupon());
 		assertNull(response.top3().getFirst().shippingCoupon());
 	}
+
+	@Test
+	void maps_request_with_empty_coupon_lists() {
+		PromoRequestDto request = new PromoRequestDto(
+			0L,
+			List.of(new CartItemDto("Item", 1_000L, 1, "FOOD")),
+			0L,
+			null,
+			List.of(),
+			List.of()
+		);
+
+		PromoDtoMapper.PromoRequest domain = PromoDtoMapper.toDomainRequest(request);
+
+		assertEquals(1_000L, domain.subtotal());
+		assertEquals(0, domain.priceCoupons().size());
+		assertEquals(0, domain.shippingCoupons().size());
+	}
 }

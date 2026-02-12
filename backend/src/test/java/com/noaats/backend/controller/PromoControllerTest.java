@@ -65,4 +65,23 @@ class PromoControllerTest {
 		verify(historyService).saveHistory(Mockito.eq(1L), Mockito.any(), Mockito.any());
 		SecurityContextHolder.clearContext();
 	}
+
+	@Test
+	void allows_empty_coupon_lists() {
+		HistoryService historyService = Mockito.mock(HistoryService.class);
+		PromoController controller = new PromoController(new PromoService(), historyService);
+		PromoRequestDto request = new PromoRequestDto(
+			10_000L,
+			List.of(new CartItemDto("Item", 10_000L, 1, "SHOES")),
+			3_000L,
+			PaymentMethod.CARD,
+			List.of(),
+			List.of()
+		);
+
+		var response = controller.calculate(request);
+
+		assertEquals(true, response.success());
+		assertNotNull(response.data());
+	}
 }
