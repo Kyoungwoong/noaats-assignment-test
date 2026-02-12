@@ -33,7 +33,6 @@ public final class PromoCalculator {
 		combinations.sort(Comparator
 			.comparingLong(PromoCombination::finalAmount)
 			.thenComparing(Comparator.comparingLong(PromoCombination::totalDiscount).reversed())
-			.thenComparing(Comparator.comparingDouble(PromoCombination::discountRateByTotal).reversed())
 			.thenComparingInt(PromoCombination::orderIndex)
 		);
 
@@ -41,7 +40,7 @@ public final class PromoCalculator {
 		List<PromoCombinationResult> results = new ArrayList<>(limit);
 		for (int i = 0; i < limit; i++) {
 			PromoCombination combo = combinations.get(i);
-			String reason = i == 0 ? "결제액 최소" : (i == 1 ? "총할인액 우선" : "할인율 우선");
+			String reason = i == 0 ? "결제액 최소" : (i == 1 ? "총할인액 우선" : "입력 순서 유지");
 			results.add(new PromoCombinationResult(
 				combo.priceCoupon(),
 				combo.shippingCoupon(),
