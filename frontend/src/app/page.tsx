@@ -150,6 +150,8 @@ export default function Home() {
     .filter(Boolean);
   const bestResult = results[0] ?? null;
   const visibleTabs = TABS;
+  const isAllowedByPayment = (methods: PaymentMethod[]) =>
+    methods.length === 0 || methods.includes(paymentMethod);
 
   const handleLogin = async (mode: "login" | "register") => {
     setAuthMessage(null);
@@ -383,8 +385,14 @@ export default function Home() {
             </button>
           </div>
           <div className={styles.stack}>
-            {priceCoupons.map((coupon) => (
-              <div key={coupon.id} className={styles.couponCard}>
+            {priceCoupons.map((coupon) => {
+              const isAllowed = isAllowedByPayment(coupon.allowedPaymentMethods);
+              return (
+              <div
+                key={coupon.id}
+                className={`${styles.couponCard} ${!isAllowed ? styles.couponCardDisabled : ""}`}
+                aria-disabled={!isAllowed}
+              >
                 <div className={styles.rowBetween}>
                   <div className={styles.row}>
                     <label className={styles.fieldSmall}>
@@ -429,6 +437,11 @@ export default function Home() {
                     삭제
                   </button>
                 </div>
+                {!isAllowed && (
+                  <p className={styles.couponWarning} title="선택한 결제수단에서 사용할 수 없습니다.">
+                    결제수단 제한: {paymentMethod} 불가
+                  </p>
+                )}
                 <div className={styles.row}>
                   <label className={styles.fieldSmall}>
                     <span>minSpend</span>
@@ -502,7 +515,8 @@ export default function Home() {
                   </label>
                 </div>
               </div>
-            ))}
+            );
+            })}
           </div>
         </section>
 
@@ -514,8 +528,14 @@ export default function Home() {
             </button>
           </div>
           <div className={styles.stack}>
-            {shippingCoupons.map((coupon) => (
-              <div key={coupon.id} className={styles.couponCard}>
+            {shippingCoupons.map((coupon) => {
+              const isAllowed = isAllowedByPayment(coupon.allowedPaymentMethods);
+              return (
+              <div
+                key={coupon.id}
+                className={`${styles.couponCard} ${!isAllowed ? styles.couponCardDisabled : ""}`}
+                aria-disabled={!isAllowed}
+              >
                 <div className={styles.rowBetween}>
                   <div className={styles.row}>
                     <label className={styles.fieldSmall}>
@@ -547,6 +567,11 @@ export default function Home() {
                     삭제
                   </button>
                 </div>
+                {!isAllowed && (
+                  <p className={styles.couponWarning} title="선택한 결제수단에서 사용할 수 없습니다.">
+                    결제수단 제한: {paymentMethod} 불가
+                  </p>
+                )}
                 <div className={styles.row}>
                   <label className={styles.fieldSmall}>
                     <span>제외 카테고리(,)</span>
@@ -600,7 +625,8 @@ export default function Home() {
                   </label>
                 </div>
               </div>
-            ))}
+            );
+            })}
           </div>
         </section>
               </div>
@@ -671,6 +697,12 @@ export default function Home() {
                       {result.priceCoupon ? formatPriceCoupon(result.priceCoupon) : "미사용"}
                     </p>
                   </div>
+                  {result.priceResult.reason === "PAYMENT_METHOD_NOT_ALLOWED" && (
+                    <div>
+                      <p className={styles.label}>불가 사유</p>
+                      <p className={styles.valueSmall}>결제수단 제한</p>
+                    </div>
+                  )}
                   {result.priceResult.reason === "MIN_SPEND_NOT_MET" && result.priceResult.shortfallAmount > 0 && (
                     <div>
                       <p className={styles.label}>부족 금액</p>
@@ -685,6 +717,12 @@ export default function Home() {
                       {result.shippingCoupon ? formatCurrency(result.shippingCoupon.shippingDiscount) : "미사용"}
                     </p>
                   </div>
+                  {result.shippingResult.reason === "PAYMENT_METHOD_NOT_ALLOWED" && (
+                    <div>
+                      <p className={styles.label}>불가 사유</p>
+                      <p className={styles.valueSmall}>결제수단 제한</p>
+                    </div>
+                  )}
                 </div>
               </article>
             ))}
