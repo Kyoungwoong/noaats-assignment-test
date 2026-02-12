@@ -30,10 +30,19 @@ pnpm install
 pnpm dev
 ```
 
+### Docker (compose)
+```bash
+docker compose up --build
+```
+접속:
+- Frontend: http://localhost:3000
+- Backend: http://localhost:8080
+
 ## 환경 요구사항
 - JDK 17+
 - Node.js 18+
 - pnpm 9+
+- Docker (선택)
 
 ---
 
