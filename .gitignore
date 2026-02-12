@@ -31,3 +31,6 @@ backend/logs/
 
 # Local database files
 backend/data/
+
+# macOS
+.DS_Store

@@ -24,4 +24,23 @@ class EvCalculatorTest {
 		assertEquals(100 + 100 + 50, result.expectedValue());
 		assertEquals(0.025, result.expectedDiscountRate(), 0.0001);
 	}
+
+	@Test
+	void handles_percent_reward() {
+		List<EvScenarioDto> scenarios = List.of(
+			new EvScenarioDto("percent", 0.1, EvRewardType.PERCENT, 10)
+		);
+
+		EvCalculator.EvResult result = EvCalculator.calculate(10_000L, scenarios);
+
+		assertEquals(100L, result.expectedValue());
+	}
+
+	@Test
+	void handles_null_scenarios() {
+		EvCalculator.EvResult result = EvCalculator.calculate(10_000L, null);
+
+		assertEquals(0L, result.expectedValue());
+		assertEquals(0.0, result.expectedDiscountRate(), 0.0001);
+	}
 }

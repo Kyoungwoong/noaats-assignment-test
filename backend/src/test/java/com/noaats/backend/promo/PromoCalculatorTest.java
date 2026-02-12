@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 class PromoCalculatorTest {
 
@@ -53,5 +54,24 @@ class PromoCalculatorTest {
 
 		assertNotNull(first.priceCoupon());
 		assertNotNull(first.shippingCoupon());
+	}
+
+	@Test
+	void handles_null_items_and_null_coupons() {
+		List<PromoCombinationResult> results = PromoCalculator.recommendTop3(
+			10_000L,
+			3_000L,
+			null,
+			PaymentMethod.CARD,
+			Instant.parse("2026-02-11T00:00:00Z"),
+			null,
+			null
+		);
+
+		assertEquals(1, results.size());
+		PromoCombinationResult result = results.get(0);
+		assertEquals(13_000L, result.finalAmount());
+		assertNull(result.priceCoupon());
+		assertNull(result.shippingCoupon());
 	}
 }
