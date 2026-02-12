@@ -696,6 +696,11 @@ export default function Home() {
                     <p className={styles.valueSmall}>
                       {result.priceCoupon ? formatPriceCoupon(result.priceCoupon) : "미사용"}
                     </p>
+                    {result.priceResult.applied && result.priceResult.discount > 0 && (
+                      <p className={styles.valueSmall}>
+                        실제 할인액: {formatCurrency(result.priceResult.discount)}
+                      </p>
+                    )}
                   </div>
                   {result.priceResult.reason === "PAYMENT_METHOD_NOT_ALLOWED" && (
                     <div>
@@ -709,6 +714,7 @@ export default function Home() {
                       <p className={styles.valueSmall}>
                         {formatCurrency(result.priceResult.shortfallAmount)}
                       </p>
+                      <p className={styles.valueSmall}>적용 실패</p>
                     </div>
                   )}
                   <div>
@@ -716,6 +722,11 @@ export default function Home() {
                     <p className={styles.valueSmall}>
                       {result.shippingCoupon ? formatCurrency(result.shippingCoupon.shippingDiscount) : "미사용"}
                     </p>
+                    {result.shippingResult.applied && result.shippingResult.discount > 0 && (
+                      <p className={styles.valueSmall}>
+                        실제 할인액: {formatCurrency(result.shippingResult.discount)}
+                      </p>
+                    )}
                   </div>
                   {result.shippingResult.reason === "PAYMENT_METHOD_NOT_ALLOWED" && (
                     <div>
