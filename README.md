@@ -64,7 +64,7 @@ cd backend
 ## API 요약
 - `POST /api/promo/calculate`: 쿠폰 조합 계산
 - `POST /api/ev/calculate`: EV 계산
-- `POST /api/auth/signup`: 회원가입
+- `POST /api/auth/register`: 회원가입
 - `POST /api/auth/login`: 로그인
 - `GET /api/history`: 계산 히스토리 조회
 
