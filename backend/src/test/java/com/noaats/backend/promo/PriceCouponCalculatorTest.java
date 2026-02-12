@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class PriceCouponCalculatorTest {
@@ -78,5 +79,59 @@ class PriceCouponCalculatorTest {
 		assertEquals(31_000L, result.finalAmount());
 		assertEquals("MIN_SPEND_NOT_MET", result.reason());
 		assertEquals(2_000L, result.shortfallAmount());
+	}
+
+	@Test
+	void returns_reason_when_category_excluded() {
+		PriceCoupon coupon = new PriceCoupon(
+			PriceCouponType.PERCENT,
+			10,
+			null,
+			0L,
+			null,
+			List.of("SHOES"),
+			null,
+			null,
+			null
+		);
+
+		PriceDiscountResult result = PriceCouponCalculator.calculate(10_000L, 1_000L, coupon, context());
+
+		assertFalse(result.applied());
+		assertEquals("CATEGORY_EXCLUDED", result.reason());
+	}
+
+	@Test
+	void throws_when_percent_coupon_missing_rate() {
+		PriceCoupon coupon = new PriceCoupon(
+			PriceCouponType.PERCENT,
+			null,
+			null,
+			0L,
+			null,
+			null,
+			null,
+			null,
+			null
+		);
+
+		assertThrows(IllegalArgumentException.class, () -> PriceCouponCalculator.calculate(10_000L, 0L, coupon, context()));
+	}
+
+	@Test
+	void throws_when_fixed_coupon_missing_amount() {
+		PriceCoupon coupon = new PriceCoupon(
+			PriceCouponType.FIXED,
+			null,
+			null,
+			0L,
+			null,
+			null,
+			null,
+			null,
+			null
+		);
+
+		assertThrows(IllegalArgumentException.class, () -> PriceCouponCalculator.calculate(10_000L, 0L, coupon, context()));
 	}
 }

@@ -104,6 +104,57 @@ class HistoryServiceTest {
 	}
 
 	@Test
+	void save_history_when_user_missing_throws() {
+		PromoHistoryRepository repo = mock(PromoHistoryRepository.class);
+		UserRepository userRepo = mock(UserRepository.class);
+		ObjectMapper mapper = new ObjectMapper();
+		HistoryService service = new HistoryService(repo, userRepo, mapper);
+		when(userRepo.findById(1L)).thenReturn(Optional.empty());
+
+		PromoRequestDto request = new PromoRequestDto(
+			1000L,
+			List.of(new CartItemDto("Item", 1000L, 1, "SHOES")),
+			200L,
+			PaymentMethod.CARD,
+			List.of(),
+			List.of()
+		);
+		PromoResponseDto response = new PromoResponseDto(List.of());
+
+		ApiException ex = assertThrows(ApiException.class, () -> service.saveHistory(1L, request, response));
+		assertEquals(ErrorCode.UNAUTHORIZED, ex.errorCode());
+	}
+
+	@Test
+	void save_history_handles_empty_top3() {
+		PromoHistoryRepository repo = mock(PromoHistoryRepository.class);
+		UserRepository userRepo = mock(UserRepository.class);
+		ObjectMapper mapper = new ObjectMapper();
+		HistoryService service = new HistoryService(repo, userRepo, mapper);
+		UserEntity user = new UserEntity("user", "hash");
+		when(userRepo.findById(1L)).thenReturn(Optional.of(user));
+		when(repo.save(any(PromoHistory.class))).thenAnswer(inv -> inv.getArgument(0));
+
+		PromoRequestDto request = new PromoRequestDto(
+			1000L,
+			List.of(new CartItemDto("Item", 1000L, 1, "SHOES")),
+			200L,
+			PaymentMethod.CARD,
+			List.of(),
+			List.of()
+		);
+		PromoResponseDto response = new PromoResponseDto(List.of());
+
+		service.saveHistory(1L, request, response);
+
+		ArgumentCaptor<PromoHistory> captor = ArgumentCaptor.forClass(PromoHistory.class);
+		verify(repo).save(captor.capture());
+		PromoHistory saved = captor.getValue();
+		assertEquals(1200L, saved.getFinalAmount());
+		assertEquals(0L, saved.getTotalDiscount());
+	}
+
+	@Test
 	void get_detail_parses_json() {
 		PromoHistoryRepository repo = mock(PromoHistoryRepository.class);
 		UserRepository userRepo = mock(UserRepository.class);
