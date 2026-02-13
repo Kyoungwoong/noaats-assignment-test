@@ -8,10 +8,9 @@
 ## 문서 안내
 - 문제 정의/기획: `Problem.md`
 - 테스트 시나리오: `TESTCASES.md`
-- UI 검증 체크리스트: `UI_CHECKLIST.md`
 - 개선 과정/프롬프트 로그 링크: `PROCESS.md`
 - AI 활용 기록: `AI_COLLABORATION.md`
-- 에이전트 규칙: `AGENTS.md` / `.agents/skills/*/SKILL.md`
+- 에이전트 규칙: `AGENTS.md` / `.agents/skills/*/SKILL.md` / `.codex/`
 
 ---
 
