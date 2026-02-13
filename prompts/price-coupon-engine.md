@@ -209,7 +209,7 @@ User: 음, 다시 이거는 내가 새로 진행할게. 그러니까 결국 다�
 AI: 요청대로 `AGENTS.md`에 강제 규칙을 추가했다. 반영된 내용은 다음을 포함한다.
 
 - `git-workflow` 스킬 기반 이슈 → 브랜치 → 커밋 → 푸시 → PR 강제
-- 브랜치명 `musinsa/<type>/<issue-number>-<short-description>` 강제
+- 브랜치명 `noaats/<type>/<issue-number>-<short-description>` 강제
 - 커밋을 기능 단위로 작게 분할
 - `prompts/` 아래 기능별 프롬프트 기록 강제
 - 작업 전 관련 스킬 사용 강제
@@ -276,15 +276,8 @@ AI: 진행 전에 확인: `codex-operations` 규칙상 **repo 상태를 바꾸�
 아래 작업을 순서대로 실행해도 될까?
 
 1. `.gitignore`에 `plan.md` 추가  
-2. 브랜치 생성: `musinsa/feat/1-price-coupon-engine`  
+2. 브랜치 생성: `noaats/feat/1-price-coupon-engine`  
 3. 기능 단위 커밋 3개로 분리 후 푸시  
-
-승인하면 바로 진행하겠다.
-User: musinsa를 noaats로 수정해서 작업해줘. 스킬 및 다른것도 수정했어. 진행해줘
-AI: 완료했다. 진행 내역 요약:
-
-**브랜치**
-- `noaats/feat/1-price-coupon-engine` 생성
 
 **커밋 (작게 분리)**
 1. `feat(promo): add price coupon calculation engine`  

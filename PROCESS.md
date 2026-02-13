@@ -22,51 +22,52 @@
 - Top3 추천 정렬 기준을 정책 문서와 일치하도록 수정.
 
 관련 프롬프트:
-- [price-coupon-engine](./prompts/price-coupon-engine.md)
-- [feature-shipping-top3-ui](./prompts/feature-shipping-top3-ui.md)
-- [feat-top3-sort-policy](./prompts/feat-top3-sort-policy.md)
+- [가격 쿠폰 계산 엔진](./prompts/price-coupon-engine.md)
+- [배송 쿠폰 + Top3 UI](./prompts/feature-shipping-top3-ui.md)
+- [Top3 정렬 정책 맞춤](./prompts/feat-top3-sort-policy.md)
 
 ### 2.2 입력/결과 UX 개선
 - 실질 할인율 2종 표기, 정책/기준 표시, 부족 금액 표시.
 - 결과 사유/추천 사유 표시 강화.
 
 관련 프롬프트:
-- [feat-discount-rates](./prompts/feat-discount-rates.md)
-- [feat-result-policy-block](./prompts/feat-result-policy-block.md)
-- [feat-minspend-shortfall](./prompts/feat-minspend-shortfall.md)
-- [feat-recommendation-reasons](./prompts/feat-recommendation-reasons.md)
-- [feat-ui-ux-dashboard](./prompts/feat-ui-ux-dashboard.md)
-- [feat-compare-view](./prompts/feat-compare-view.md)
+- [실질 할인율 2종 표시](./prompts/feat-discount-rates.md)
+- [결과 영역 정책 블록](./prompts/feat-result-policy-block.md)
+- [minSpend 부족 금액 표시](./prompts/feat-minspend-shortfall.md)
+- [추천 사유 표시](./prompts/feat-recommendation-reasons.md)
+- [결과 카드 상세 표시](./prompts/feat-ui-result-details.md)
+- [UI/UX 대시보드 구성](./prompts/feat-ui-ux-dashboard.md)
+- [비교 화면(A/B) 추가](./prompts/feat-compare-view.md)
 
 ### 2.3 조건/제약 확장
 - 결제수단 제한 조건 및 UI 차단 처리.
 - 쿠폰 조건 검증 로직 강화.
 
 관련 프롬프트:
-- [feat-payment-method-guard](./prompts/feat-payment-method-guard.md)
-- [feat-coupon-conditions](./prompts/feat-coupon-conditions.md)
+- [결제수단 제한 처리](./prompts/feat-payment-method-guard.md)
+- [쿠폰 조건 검증 강화](./prompts/feat-coupon-conditions.md)
 
 ### 2.4 공통 응답/예외 처리 구조화
 - 공통 응답 포맷 및 GlobalExceptionHandler 적용.
 - ErrorCode enum 및 표준 에러 응답 구조 정립.
 
 관련 프롬프트:
-- [refactor-common-response-error](./prompts/refactor-common-response-error.md)
+- [공통 응답/에러 포맷 리팩터](./prompts/refactor-common-response-error.md)
 
 ### 2.5 인증/히스토리 기능 추가
 - 로그인/회원가입 및 히스토리 저장/조회 흐름 구성.
 - 마이페이지 히스토리 대시보드 UX 확장.
 
 관련 프롬프트:
-- [feat-auth-history](./prompts/feat-auth-history.md)
+- [인증/히스토리 기능](./prompts/feat-auth-history.md)
 
 ### 2.6 문서/테스트 강화
 - 테스트 커버리지 80% 이상 확보 및 JaCoCo 도입.
 - Swagger/OpenAPI 문서 보강.
 
 관련 프롬프트:
-- [feat-test-coverage](./prompts/feat-test-coverage.md)
-- [feat-swagger-openapi](./prompts/feat-swagger-openapi.md)
+- [테스트 커버리지 보강](./prompts/feat-test-coverage.md)
+- [Swagger/OpenAPI 적용](./prompts/feat-swagger-openapi.md)
 
 ---
 
